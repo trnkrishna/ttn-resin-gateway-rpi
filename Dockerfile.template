@@ -1,18 +1,29 @@
-FROM resin/%%RESIN_MACHINE_NAME%%-buildpack-deps
+FROM resin/%%RESIN_MACHINE_NAME%%-debian:latest AS buildstep
 
-# Enable systemd, as Resin requires this
-ENV INITSYSTEM on
-
-# Make the hardware type available as a runtime env var
-ENV RESIN_ARCH %%RESIN_ARCH%%
-ENV RESIN_MACHINE_NAME %%RESIN_MACHINE_NAME%%
-
-# Copy the build and run environment
-COPY . /opt/ttn-gateway/
 WORKDIR /opt/ttn-gateway/
 
-# Build the gateway (or comment this out if debugging on-device)
-RUN ./dev/build.sh && rm -rf ./dev
+# downloading utils
+RUN apt-get update && \
+    apt-get install wget build-essential libc6-dev git pkg-config protobuf-compiler libprotobuf-dev libprotoc-dev automake libtool autoconf python-dev python-rpi.gpio
 
-# Start it up
-CMD ["sh", "-c", "./run.py"]
+COPY dev dev
+RUN ./dev/build.sh
+
+FROM resin/%%RESIN_MACHINE_NAME%%-debian:latest
+
+WORKDIR /opt/ttn-gateway
+
+RUN apt-get update && \
+    apt-get install python-rpi.gpio && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=buildstep /opt/ttn-gateway/mp_pkt_fwd .
+COPY --from=buildstep /usr/local/lib/libpaho-embed-* /usr/lib/
+COPY --from=buildstep /usr/lib/libttn* /usr/lib/
+
+COPY run.py ./
+COPY start.sh ./
+
+# run when container lands on device
+CMD ["bash", "start.sh"]

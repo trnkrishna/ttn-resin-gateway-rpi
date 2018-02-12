@@ -23,7 +23,7 @@ except RuntimeError:
 
 GWID_PREFIX="FFFE"
 
-if not os.path.exists("mp_pkt_fwd"):
+if not os.path.exists("/opt/ttn-gateway/mp_pkt_fwd"):
   print ("ERROR: gateway executable not found. Is it built yet?")
   sys.exit(0)
 
@@ -172,6 +172,7 @@ gateway_conf = {}
 gateway_conf['gateway_ID'] = my_eui
 gateway_conf['contact_email'] = os.getenv('GW_CONTACT_EMAIL', "")
 gateway_conf['description'] = description
+gateway_conf['stat_file'] = 'loragwstat.json'
 
 if(os.getenv('GW_FWD_CRC_ERR', "false")=="true"):
   #default is False
@@ -291,7 +292,7 @@ if(os.getenv('SERVER_3_ENABLED', "false")=="true"):
 # We merge the json objects from the global_conf and local_conf and save it to the global_conf.
 # Therefore there will not be a local_conf.json file.
 local_conf = {'SX1301_conf': sx1301_conf, 'gateway_conf': gateway_conf}
-with open('global_conf.json', 'w') as the_file:
+with open('/opt/ttn-gateway/global_conf.json', 'w') as the_file:
   the_file.write(json.dumps(local_conf, indent=4))
 
 
@@ -332,5 +333,5 @@ while True:
     GPIO.cleanup(22)
 
   # Start forwarder
-  subprocess.call(["./mp_pkt_fwd"])
+  subprocess.call("/opt/ttn-gateway/mp_pkt_fwd -c /opt/ttn-gateway", shell=True)
   time.sleep(15)
