@@ -14,6 +14,7 @@ Currently any Raspberry Pi with one of the following gateway boards, communicati
 * [IMST iC880A-SPI](http://webshop.imst.de/ic880a-spi-lorawan-concentrator-868mhz.html). Preferable configured as described [by TTN-ZH](https://github.com/ttn-zh/ic880a-gateway/wiki). You **do not** need to follow the **Setting up the software** step, as the setup scripts in this repository does it for you.
 * [LinkLabs Raspberry Pi "Hat"](http://link-labs.myshopify.com/products/lorawan-raspberry-pi-board)
 * [RisingHF IoT Dicovery](http://www.risinghf.com/product/risinghf-iot-dicovery/?lang=en)
+* [RAK831](http://www.rakwireless.com/en/WisKeyOSH/RAK831)
 
 ## Prerequisites
 
@@ -37,7 +38,7 @@ For a more complete list of possible environment variables, see [CONFIGURATION](
 
 ### Device environment variables - no GPS
 
-For example, for an IMST iC880A with no GPS, the MINIMUM environment variables that you should configure at this screen should look something like this:
+For example, for an IMST iC880A or RAK831 with no GPS, the MINIMUM environment variables that you should configure at this screen should look something like this:
 
 Name      	  	   | Value  
 ------------------|--------------------------  
@@ -47,7 +48,7 @@ GW_ID             | The gateway ID from the TTN console
 GW_KEY            | The gateway KEY from the TTN console
 GW_RESET_PIN      | 22 (optional)
 
-GW_RESET_PIN can be left out if you are using Gonzalo Casas' backplane board, or any other setup using pin 22 as reset pin. This is because pin 22 is the default reset pin used by this resin.io setup.
+GW_RESET_PIN can be left out if you are using Gonzalo Casas' backplane board, the RAK backplane for the RAK831, or any other setup using pin 22 as reset pin. This is because pin 22 is the default reset pin used by this resin.io setup.
 
 
 ### Device environment variables - with GPS
@@ -77,6 +78,7 @@ Linklabs Rasberry Pi Hat<br />https://www.amazon.co.uk/868-MHz-LoRaWAN-RPi-Shiel
 Rising HF Board<br />http://www.risinghf.com/product/risinghf-iot-dicovery/?lang=en | 26
 IMST backplane or Lite gateway<br />https://wireless-solutions.de/products/long-range-radio/lora_lite_gateway.html | 29 (untested)
 Coredump backplane<br />https://github.com/dbrgn/ic880a-backplane/<br />https://shop.coredump.ch/product/ic880a-lorawan-gateway-backplane/ | 22
+RAK backplane<br /> | 11
 
 
 If you get the message
@@ -84,7 +86,7 @@ If you get the message
 after resin.io is finished downloading the application, or when restarting the gateway, it most likely means the `GW_RESET_PIN` you defined is incorrect. Alternatively the problem can be caused by the hardware, typically for the `IMST iC880A-SPI` board with insufficient voltage, try another power supply or slightly increase the voltage.
 
 
-## Special note for using the LinkLabs gateway on a Raspberry Pi 3
+## Special note for using a Raspberry Pi 3
 
 There is a backward incomatibility between the Raspberry Pi 1 and 2 hardware, and Raspberry Pi 3.  For Raspberry Pi 3, it is necessary to make a small additional configuration change.
 
@@ -156,10 +158,21 @@ If you get the error below please check if your ssh public key has been added to
   ```
   git add .
   git commit -m "Updated gateway version"
-  git push -f resin master"
+  git push -f resin master
   ```
 
 - For devices without a GPS, the location that is configured on the TTN console is used. This location is only read at startup of the gateway. Therefore, after you set or changed the location, restart the application from the resin.io console.
+
+# Device statistics
+If you want to show nice looking statistics for your gateway(s) there are a couple of additional steps to take. First,
+copy Dockerfile.template.metering to Dockerfile.template . Next copy start.sh.metering to start.sh . Now use the instructions above to
+update the resin image.
+
+Once the new image is deployed, go to the resin.io dashboard for your devices and select 'Enable Public device URL' in the drop down menu
+(the one to the right of the light bulb). That is all that is required to provide metrics. Now you will need to install a metrics collector
+on a seperate system as outlined in [Fleet-wide Machine Metrics Monitoring in 20mins](https://resin.io/blog/prometheusv2/)
+
+(To show packet forwarder graphs you need to add your own graphs to the provided templates)
 
 # Credits
 

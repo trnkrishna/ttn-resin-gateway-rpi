@@ -5,17 +5,6 @@ INSTALL_DIR="/opt/ttn-gateway"
 mkdir -p $INSTALL_DIR/dev
 cd $INSTALL_DIR/dev
 
-if [ ! -d wiringPi ]; then
-    git clone git://git.drogon.net/wiringPi  || { echo 'Cloning wiringPi failed.' ; exit 1; }
-    cd wiringPi
-else
-    cd wiringPi
-    git reset --hard
-    git pull
-fi
-./build
-cd ..
-
 if [ ! -d lora_gateway ]; then
     git clone https://github.com/kersing/lora_gateway.git  || { echo 'Cloning lora_gateway failed.' ; exit 1; }
 else
@@ -70,13 +59,10 @@ else
     cd ..
 fi
 
-apt-get update
-apt-get -y install protobuf-compiler libprotobuf-dev libprotoc-dev automake libtool autoconf python-dev python-rpi.gpio
-
 cd $INSTALL_DIR/dev/lora_gateway/libloragw
 sed -i -e 's/PLATFORM= .*$/PLATFORM= imst_rpi/g' library.cfg
 sed -i -e 's/CFG_SPI= .*$/CFG_SPI= native/g' library.cfg
-make
+make -j$(nproc)
 
 cd $INSTALL_DIR/dev/protobuf-c
 ./autogen.sh
@@ -92,11 +78,11 @@ make install
 
 cd $INSTALL_DIR/dev/ttn-gateway-connector
 cp config.mk.in config.mk
-make
+make -j$(nproc)
 cp bin/libttn-gateway-connector.so /usr/lib/
 
 cd $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/
-make
+make -j$(nproc)
 
 # Copy things needed at runtime to where they'll be expected
 cp $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/mp_pkt_fwd $INSTALL_DIR/mp_pkt_fwd
