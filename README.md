@@ -42,8 +42,6 @@ For example, for an IMST iC880A or RAK831 with no GPS, the MINIMUM environment v
 
 Name      	  	   | Value  
 ------------------|--------------------------  
-GW_TYPE           | imst-ic880a-spi
-GW_CONTACT_EMAIL  | yourname@yourdomain.com
 GW_ID             | The gateway ID from the TTN console
 GW_KEY            | The gateway KEY from the TTN console
 GW_RESET_PIN      | 22 (optional)
@@ -56,8 +54,7 @@ GW_RESET_PIN can be left out if you are using Gonzalo Casas' backplane board, or
 For example a LinkLabs gateway, which has a built-in GPS, you need:
 
 Name      	  	   | Value  
-------------------|--------------------------  
-GW_CONTACT_EMAIL  | yourname@yourdomain.com
+------------------|--------------------------
 GW_ID             | The gateway ID from the TTN console
 GW_KEY            | The gateway KEY from the TTN console
 GW_GPS            | true
