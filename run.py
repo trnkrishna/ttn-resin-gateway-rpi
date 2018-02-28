@@ -174,6 +174,11 @@ gateway_conf['contact_email'] = os.getenv('GW_CONTACT_EMAIL', "")
 gateway_conf['description'] = description
 gateway_conf['stat_file'] = 'loragwstat.json'
 
+if(os.getenv('GW_LOGGER', "false")=="true"):
+  gateway_conf['logger'] = True
+else:
+  gateway_conf['logger'] = False
+
 if(os.getenv('GW_FWD_CRC_ERR', "false")=="true"):
   #default is False
   gateway_conf['forward_crc_error'] = True
@@ -295,8 +300,6 @@ local_conf = {'SX1301_conf': sx1301_conf, 'gateway_conf': gateway_conf}
 with open('/opt/ttn-gateway/global_conf.json', 'w') as the_file:
   the_file.write(json.dumps(local_conf, indent=4))
 
-
-# TODO: Cayenne monitoring script
 
 
 # Endless loop to reset and restart packet forwarder
