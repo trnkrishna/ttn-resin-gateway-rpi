@@ -27,6 +27,8 @@
   * The longitude to use for fake gps if the coordinates are not set in the TTN console.
 * GW_REF_ALTITUDE optional - default 0
   * The altitude to use for fake gps if the coordinates are not set in the TTN console.
+* GW_LOGGER optional - default false
+  * Write a line to the terminal whenever a packet is received. ex: `08:54:37  INFO: [stats] received packet with valid CRC from mote: 26011C51 (fcnt=7)`
 * GW_FWD_CRC_ERR optional - default false
   * Forward packets with an invalid CRC.
 * GW_FWD_CRC_VAL optional - default true.
