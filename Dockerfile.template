@@ -49,6 +49,7 @@ COPY --from=buildstep /opt/ttn-gateway/mp_pkt_fwd .
 COPY --from=buildstep /usr/local/lib/libpaho-embed-* /usr/lib/
 COPY --from=buildstep /usr/lib/libttn* /usr/lib/
 COPY run.py run.py
+COPY start.sh ./
 
 WORKDIR /
 
