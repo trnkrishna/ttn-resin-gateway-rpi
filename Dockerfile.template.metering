@@ -7,9 +7,9 @@ RUN apt-get update && \
 WORKDIR /etc
 
 # versions
-ENV NODE_EXPORTER_VERSION 0.12.0
-ENV DIST_ARCH linux-armv7
-RUN wget https://github.com/prometheus/node_exporter/releases/download/${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.${DIST_ARCH}.tar.gz  \
+ENV NODE_EXPORTER_VERSION 0.16.0
+ENV DIST_ARCH linux-armv6
+RUN wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.${DIST_ARCH}.tar.gz  \
 	&& tar xvfz node_exporter-${NODE_EXPORTER_VERSION}.${DIST_ARCH}.tar.gz \
 	&& rm node_exporter-${NODE_EXPORTER_VERSION}.${DIST_ARCH}.tar.gz
 
@@ -35,8 +35,8 @@ RUN apt-get update && \
 ENV INITSYSTEM on
 
 # versions
-ENV NODE_EXPORTER_VERSION 0.12.0
-ENV DIST_ARCH linux-armv7
+ENV NODE_EXPORTER_VERSION 0.16.0
+ENV DIST_ARCH linux-armv6
 
 WORKDIR /etc
 COPY --from=buildstep /etc/node_exporter-${NODE_EXPORTER_VERSION}.${DIST_ARCH} .
