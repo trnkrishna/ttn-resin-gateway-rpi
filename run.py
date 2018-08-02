@@ -59,13 +59,18 @@ else:
 
 print ("GW_EUI:\t"+my_eui)
 
+if os.environ.get("ACCOUNT_SERVER_DOMAIN")==None:
+  account_server_domain="account.thethingsnetwork.org"
+else:
+  account_server_domain=os.environ.get("ACCOUNT_SERVER_DOMAIN")
+
 # Define default configs
 description = os.getenv('GW_DESCRIPTION', "")
 placement = ""
 latitude = os.getenv('GW_REF_LATITUDE', 0)
 longitude = os.getenv('GW_REF_LONGITUDE', 0)
 altitude = os.getenv('GW_REF_ALTITUDE', 0)
-frequency_plan_url = os.getenv('FREQ_PLAN_URL', "https://account.thethingsnetwork.org/api/v2/frequency-plans/EU_863_870")
+frequency_plan_url = os.getenv('FREQ_PLAN_URL', "https://%s/api/v2/frequency-plans/EU_863_870" % account_server_domain)
 
 # Fetch config from TTN if TTN is enabled
 if(os.getenv('SERVER_TTN', "true")=="true"):
@@ -90,7 +95,7 @@ if(os.getenv('SERVER_TTN', "true")=="true"):
   # Fetch the URL, if it fails try 30 seconds later again.
   config_response = ""
   try:
-    req = urllib2.Request('https://account.thethingsnetwork.org/gateways/'+my_gw_id)
+    req = urllib2.Request('https://%s/api/v2/gateways/%s' % (account_server_domain, my_gw_id))
     req.add_header('Authorization', 'Key '+os.environ.get("GW_KEY"))
     response = urllib2.urlopen(req, timeout=30)
     config_response = response.read()
@@ -107,12 +112,17 @@ if(os.getenv('SERVER_TTN', "true")=="true"):
     sys.exit(0)
 
   frequency_plan = ttn_config.get('frequency_plan', "EU_863_870")
-  frequency_plan_url = ttn_config.get('frequency_plan_url', "https://account.thethingsnetwork.org/api/v2/frequency-plans/EU_863_870")
+  frequency_plan_url = ttn_config.get('frequency_plan_url', "https://%s/api/v2/frequency-plans/EU_863_870" % account_server_domain)
 
-  if "router" in ttn_config:
+  if os.environ.get("ROUTER_MQTT_ADDRESS"):
+    router = os.environ.get("ROUTER_MQTT_ADDRESS")
+  elif "router" in ttn_config:
     router = ttn_config['router'].get('mqtt_address', "mqtt://router.dev.thethings.network:1883")
     router = urlparse.urlparse(router)
-    router = router.hostname # mp_pkt_fwd only wants the hostname, not the protocol and port
+    if router.port:
+      router = "%s:%d" % (router.hostname, router.port)
+    else:
+      router = router.hostname
   else:
     router = "router.dev.thethings.network"
 
