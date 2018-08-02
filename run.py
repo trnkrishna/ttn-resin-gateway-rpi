@@ -13,10 +13,6 @@ import uuid
 import json
 import subprocess
 try:
-  import urlparse
-except:
-  import urllib.parse as urlparse
-try:
   import RPi.GPIO as GPIO
 except RuntimeError:
   print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
@@ -72,6 +68,15 @@ longitude = os.getenv('GW_REF_LONGITUDE', 0)
 altitude = os.getenv('GW_REF_ALTITUDE', 0)
 frequency_plan_url = os.getenv('FREQ_PLAN_URL', "https://%s/api/v2/frequency-plans/EU_863_870" % account_server_domain)
 
+"""
+Takes a router address as input, and returns it in the format expected for the packet forwarder configuration
+"""
+def sanitize_router_address(address):
+  splitted_by_protocol = address.split("://")
+  if len(splitted_by_protocol) == 1:
+    return address
+  return splitted_by_protocol[1]
+
 # Fetch config from TTN if TTN is enabled
 if(os.getenv('SERVER_TTN', "true")=="true"):
   print ("Enabling TTN gateway connector")
@@ -115,14 +120,10 @@ if(os.getenv('SERVER_TTN', "true")=="true"):
   frequency_plan_url = ttn_config.get('frequency_plan_url', "https://%s/api/v2/frequency-plans/EU_863_870" % account_server_domain)
 
   if os.environ.get("ROUTER_MQTT_ADDRESS"):
-    router = os.environ.get("ROUTER_MQTT_ADDRESS")
+    router = sanitize_router_address(os.environ.get("ROUTER_MQTT_ADDRESS"))
   elif "router" in ttn_config:
-    router = ttn_config['router'].get('mqtt_address', "mqtt://router.dev.thethings.network:1883")
-    router = urlparse.urlparse(router)
-    if router.port:
-      router = "%s:%d" % (router.hostname, router.port)
-    else:
-      router = router.hostname
+    fetched_router_address = ttn_config['router'].get('mqtt_address', "mqtt://router.dev.thethings.network:1883")
+    router = sanitize_router_address(fetched_router_address)
   else:
     router = "router.dev.thethings.network"
 
