@@ -1,4 +1,4 @@
-FROM balenalib/%%RESIN_MACHINE_NAME%%-debian:latest AS buildstep
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:latest-build AS buildstep
 
 # downloading utils
 RUN apt-get update && \
@@ -27,7 +27,7 @@ WORKDIR /opt/ttn-gateway/
 COPY dev dev
 RUN ./dev/build.sh
 
-FROM balenalib/%%RESIN_MACHINE_NAME%%-debian:latest
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:latest-run
 RUN apt-get update && \
     apt-get install python-rpi.gpio && \
 	apt-get clean && \
