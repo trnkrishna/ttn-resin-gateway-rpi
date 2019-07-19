@@ -1,4 +1,4 @@
-FROM balenalib/%%RESIN_MACHINE_NAME%%-debian:latest AS buildstep
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:latest-build AS buildstep
 
 WORKDIR /opt/ttn-gateway/
 
@@ -9,7 +9,7 @@ RUN apt-get update && \
 COPY dev dev
 RUN ./dev/build.sh
 
-FROM balenalib/%%RESIN_MACHINE_NAME%%-debian:latest
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:latest-run
 
 ENV UDEV=off
 
