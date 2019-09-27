@@ -115,6 +115,7 @@ if(os.getenv('SERVER_TTN', "true")=="true"):
       config_response = response.read()
     except urllib2.URLError as err: 
       print (err)
+      print (err.read())
       print ("Unable to fetch configuration from TTN. Is the TTN API reachable from gateway? Are your GW_ID and GW_KEY correct? Retry       in 30s")
       time.sleep(30)
       continue
@@ -289,6 +290,7 @@ if(os.getenv('SERVER_1_ENABLED', "false")=="true"):
   server['server_address'] = os.environ.get("SERVER_1_ADDRESS")
   server['serv_port_up'] = int(os.getenv("SERVER_1_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_1_PORTDOWN", 1700))
+  server['push_timeout_ms'] = int(os.getenv("SERVER_1_push_timeout_ms", 1))
   server['serv_enabled'] = True
   if(os.getenv('SERVER_1_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = True
