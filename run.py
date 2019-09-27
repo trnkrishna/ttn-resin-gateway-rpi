@@ -201,6 +201,7 @@ gateway_conf['gateway_ID'] = my_eui
 gateway_conf['contact_email'] = os.getenv('GW_CONTACT_EMAIL', "")
 gateway_conf['description'] = description
 gateway_conf['stat_file'] = 'loragwstat.json'
+gateway_conf['push_timeout_ms'] = int(os.getenv("PUSH_TIMEOUT_MS", 100)) # Default in code is 100
 
 if(os.getenv('GW_LOGGER', "false")=="true"):
   gateway_conf['logger'] = True
@@ -290,7 +291,6 @@ if(os.getenv('SERVER_1_ENABLED', "false")=="true"):
   server['server_address'] = os.environ.get("SERVER_1_ADDRESS")
   server['serv_port_up'] = int(os.getenv("SERVER_1_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_1_PORTDOWN", 1700))
-  server['push_timeout_ms'] = int(os.getenv("SERVER_1_push_timeout_ms", 1))
   server['serv_enabled'] = True
   if(os.getenv('SERVER_1_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = True
