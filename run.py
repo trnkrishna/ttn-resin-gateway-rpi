@@ -200,6 +200,7 @@ gateway_conf['gateway_ID'] = my_eui
 gateway_conf['contact_email'] = os.getenv('GW_CONTACT_EMAIL', "")
 gateway_conf['description'] = description
 gateway_conf['stat_file'] = 'loragwstat.json'
+gateway_conf['push_timeout_ms'] = int(os.getenv("PUSH_TIMEOUT_MS", 100)) # Default in code is 100
 
 if(os.getenv('GW_LOGGER', "false")=="true"):
   gateway_conf['logger'] = True
