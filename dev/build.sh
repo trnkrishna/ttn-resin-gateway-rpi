@@ -93,6 +93,7 @@ sed -i -e 's/#define DEBUG_BEACON .*$/#define DEBUG_BEACON 1/g' trace.h
 sed -i -e 's/#define DEBUG_LOG .*$/#define DEBUG_LOG 1/g' trace.h
 sed -i -e 's/#define DEBUG_FOLLOW .*$/#define DEBUG_FOLLOW 1/g' trace.h
 
+cp $INSTALL_DIR/dev/semtech_transport.c $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/src/semtech_transport.c
 
 
 cd $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/
