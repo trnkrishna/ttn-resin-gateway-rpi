@@ -1502,32 +1502,31 @@ void semtech_upstream(void *pic) {
 
 	    /* wait for acknowledge (in 2 times, to catch extra packets) */
 	    for (i=0; i<5; ++i) {
-		j = recv(servers[idx].sock_up, (void *)buff_ack, sizeof buff_ack, 0);
-		clock_gettime(CLOCK_MONOTONIC, &recv_time);
-		if (j == -1) {
-		    if (errno == EAGAIN) { /* timeout */
-            if(i==4) {
-                LOGGER("WARNING: [up] socket timeout waiting for push ack\n");
+            LOGGER("WARNING: [up] RX try %i\n", i);
+            j = recv(servers[idx].sock_up, (void *)buff_ack, sizeof buff_ack, 0);
+            clock_gettime(CLOCK_MONOTONIC, &recv_time);
+            if (j == -1) {
+                if (errno == EAGAIN) { /* timeout */
+                    LOGGER("WARNING: [up] socket timeout waiting for push ack\n");
+                    continue;
+                } else { /* server connection error */
+                    LOGGER("WARNING: [up] server connection error waiting for push ack\n");
+                    break;
+                }
+            } else if ((j < 4) || (buff_ack[0] != PROTOCOL_VERSION) || (buff_ack[3] != PKT_PUSH_ACK)) {
+                LOGGER("WARNING: [up] ignored invalid non-ACL packet\n");
+                continue;
+            } else if ((buff_ack[1] != token_h) || (buff_ack[2] != token_l)) {
+                LOGGER("WARNING: [up] ignored out-of sync ACK packet\n");
+                continue;
+            } else {
+                LOGGER("INFO: [up] PUSH_ACK for server %s received in %i ms\n", servers[idx].addr, (int)(1000 * difftimespec(recv_time, send_time)));
+                servers[idx].contact = time(NULL);
+                pthread_mutex_lock(&mx_meas_up);
+                meas_up_ack_rcv[idx] += 1;
+                pthread_mutex_unlock(&mx_meas_up);
+                break;
             }
-			continue;
-		    } else { /* server connection error */
-            LOGGER("WARNING: [up] server connection error waiting for push ack\n");
-			break;
-		    }
-		} else if ((j < 4) || (buff_ack[0] != PROTOCOL_VERSION) || (buff_ack[3] != PKT_PUSH_ACK)) {
-		    LOGGER("WARNING: [up] ignored invalid non-ACL packet\n");
-		    continue;
-		} else if ((buff_ack[1] != token_h) || (buff_ack[2] != token_l)) {
-		    LOGGER("WARNING: [up] ignored out-of sync ACK packet\n");
-		    continue;
-		} else {
-				    LOGGER("INFO: [up] PUSH_ACK for server %s received in %i ms\n", servers[idx].addr, (int)(1000 * difftimespec(recv_time, send_time)));
-				    servers[idx].contact = time(NULL);
-		    pthread_mutex_lock(&mx_meas_up);
-		    meas_up_ack_rcv[idx] += 1;
-		    pthread_mutex_unlock(&mx_meas_up);
-		    break;
-		}
 	    }
         // free queue entry
         free(entry);
