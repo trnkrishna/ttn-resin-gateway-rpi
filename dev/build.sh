@@ -82,7 +82,7 @@ make -j$(nproc)
 cp bin/libttn-gateway-connector.so /usr/lib/
 
 # Some custom changes
-cd $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/
+cd $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/inc/
 
 sed -i -e 's/#define DEBUG_PKT_FWD .*$/#define DEBUG_PKT_FWD 1/g' trace.h
 sed -i -e 's/#define DEBUG_JIT .*$/#define DEBUG_JIT 1/g' trace.h
