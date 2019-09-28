@@ -169,7 +169,7 @@ static uint32_t net_mac_h; /* Most Significant Nibble, network order */
 static uint32_t net_mac_l; /* Least Significant Nibble, network order */
 
 /* network protocol variables */
-static struct timeval push_timeout_half = {0, (PUSH_TIMEOUT_MS * 200)}; /* cut in half, critical for throughput */
+static struct timeval push_timeout_half = {0, (PUSH_TIMEOUT_MS * 500)}; /* cut in half, critical for throughput */
 static struct timeval pull_timeout = {0, (PULL_TIMEOUT_MS * 1000)}; /* non critical for throughput */
 
 static uint16_t crc_ccit(const uint8_t * data, unsigned size) {
@@ -1501,8 +1501,9 @@ void semtech_upstream(void *pic) {
 	    pthread_mutex_unlock(&mx_meas_up);
 
 	    /* wait for acknowledge (in 2 times, to catch extra packets) */
+        clock_gettime(CLOCK_MONOTONIC, &recv_time);
 	    for (i=0; i<5; ++i) {
-            LOGGER("WARNING: [up] RX try %i\n", i);
+            LOGGER("WARNING: [up] RX try=%i delay=%ims\n", i, (int)(1000 * difftimespec(recv_time, send_time)));
             j = recv(servers[idx].sock_up, (void *)buff_ack, sizeof buff_ack, 0);
             clock_gettime(CLOCK_MONOTONIC, &recv_time);
             if (j == -1) {
