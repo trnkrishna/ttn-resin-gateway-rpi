@@ -455,7 +455,7 @@ void semtech_thread_down(void* pic) {
     enum jit_pkt_type_e downlink_type;
 
     /* gwtraf stream */
-    char json[100], iso_timestamp[24];
+    char json[200], iso_timestamp[24];
     time_t system_time;
     int j,buff_index;
 
@@ -693,6 +693,26 @@ void semtech_thread_down(void* pic) {
 
             /* initialize TX struct and try to parse JSON */
             memset(&txpkt, 0, sizeof txpkt);
+
+            LOGGER("=== LoRa TX Packet, semtech transport, after txpkt cleared ===\n");
+            LOGGER("freq_hz: %u\n", txpkt.freq_hz);
+            LOGGER("tx_mode: %u\n", txpkt.tx_mode);
+            LOGGER("count_us: %u\n", txpkt.count_us);
+            LOGGER("rf_chain: %u\n", txpkt.rf_chain);
+            LOGGER("rf_power: %d\n", txpkt.rf_power);
+            LOGGER("modulation: %u\n", txpkt.modulation);
+            LOGGER("bandwidth: %u\n", txpkt.bandwidth);
+            LOGGER("datarate: %u\n", txpkt.datarate);
+            LOGGER("coderate: %u\n", txpkt.coderate);
+            LOGGER("invert_pol: %d\n", txpkt.invert_pol);
+            LOGGER("f_dev: %u\n", txpkt.f_dev);
+            LOGGER("preamble: %u\n", txpkt.preamble);
+            LOGGER("no_crc: %d\n", txpkt.no_crc);
+            LOGGER("no_header: %d\n", txpkt.no_header);
+            LOGGER("size: %u\n", txpkt.size);
+            // LOGGER("payload: %d\n", pkt.payload);
+            LOGGER("======================\n");
+
             root_val = json_parse_string_with_comments((const char *)(buff_down + 4)); /* JSON offset */
             if (root_val == NULL) {
                 LOGGER("WARNING: [down] invalid JSON, TX aborted\n");
@@ -711,7 +731,7 @@ void semtech_thread_down(void* pic) {
             buff_index = 0;
             system_time = time(NULL);
             strftime(iso_timestamp, sizeof iso_timestamp, "%FT%TZ", gmtime(&system_time));
-            j = snprintf((char *)(json + buff_index), 100-buff_index, "{\"type\":\"downlink\",\"gw\":\"%016llX\",\"time\":\"%s\",", (long long unsigned int) lgwm, iso_timestamp);
+            j = snprintf((char *)(json + buff_index), 200-buff_index, "{\"type\":\"downlink\",\"gw\":\"%016llX\",\"time\":\"%s\",", (long long unsigned int) lgwm, iso_timestamp);
             if (j > 0) {
                 buff_index += j;
             }
@@ -732,7 +752,7 @@ void semtech_thread_down(void* pic) {
 
                     /* Concentrator timestamp is given, we consider it is a Class A downlink */
                     downlink_type = JIT_PKT_TYPE_DOWNLINK_CLASS_A;
-                    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
+                    j = snprintf((json + buff_index), 200-buff_index, ",\"timestamp\":%d",txpkt.count_us);
                     if (j > 0) {
                         buff_index += j;
                     }
@@ -793,12 +813,12 @@ void semtech_thread_down(void* pic) {
                         LOGGER("INFO: [down] a packet will be sent on timestamp value %u (calculated from UTC time)\n", txpkt.count_us);
                     }
 
-                    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
+                    j = snprintf((json + buff_index), 200-buff_index, ",\"timestamp\":%d",txpkt.count_us);
                     if (j > 0) {
                         buff_index += j;
                     }
 
-                    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
+                    j = snprintf((json + buff_index), 200-buff_index, ",\"timestamp\":%d",txpkt.count_us);
                     if (j > 0) {
                         buff_index += j;
                     }
@@ -822,7 +842,7 @@ void semtech_thread_down(void* pic) {
                 continue;
             }
             txpkt.freq_hz = (uint32_t)((double)(1.0e6) * json_value_get_number(val));
-            j = snprintf((json + buff_index), 100-buff_index, ",\"frequency\":%d,",txpkt.freq_hz);
+            j = snprintf((json + buff_index), 200-buff_index, ",\"frequency\":%d,",txpkt.freq_hz);
             if (j > 0) {
                 buff_index += j;
             }
@@ -835,7 +855,7 @@ void semtech_thread_down(void* pic) {
                 continue;
             }
             txpkt.rf_chain = (uint8_t)json_value_get_number(val);
-            j = snprintf((json + buff_index), 100-buff_index, ",\"rf_chain\":%d",txpkt.rf_chain);
+            j = snprintf((json + buff_index), 200-buff_index, ",\"rf_chain\":%d",txpkt.rf_chain);
             if (j > 0) {
                 buff_index += j;
             }
@@ -844,7 +864,7 @@ void semtech_thread_down(void* pic) {
             val = json_object_get_value(txpk_obj,"powe");
             if (val != NULL) {
                 txpkt.rf_power = (int8_t)json_value_get_number(val) - antenna_gain;
-                j = snprintf((json + buff_index), 100-buff_index, ",\"rf_power\":%d",txpkt.rf_power);
+                j = snprintf((json + buff_index), 200-buff_index, ",\"rf_power\":%d",txpkt.rf_power);
                 if (j > 0) {
                     buff_index += j;
                 }
@@ -868,7 +888,7 @@ void semtech_thread_down(void* pic) {
                     json_value_free(root_val);
                     continue;
                 }
-                j = snprintf((json + buff_index), 100-buff_index, ",\"modulation\":\"LORA\",\"data_rate\":\"%s\"",str);
+                j = snprintf((json + buff_index), 200-buff_index, ",\"modulation\":\"LORA\",\"data_rate\":\"%s\"",str);
                 if (j > 0) {
                     buff_index += j;
                 }
@@ -907,7 +927,7 @@ void semtech_thread_down(void* pic) {
                     json_value_free(root_val);
                     continue;
                 }
-                j = snprintf((json + buff_index), 100-buff_index, "\"coding_rate\":\"%s\"", str);
+                j = snprintf((json + buff_index), 200-buff_index, "\"coding_rate\":\"%s\"", str);
                 if (j > 0) {
                     buff_index += j;
                 }
@@ -992,7 +1012,7 @@ void semtech_thread_down(void* pic) {
             }
             txpkt.size = (uint16_t)json_value_get_number(val);
 
-            j = snprintf((json + buff_index), 100-buff_index, ",\"length\":%d", txpkt.size);
+            j = snprintf((json + buff_index), 200-buff_index, ",\"length\":%d", txpkt.size);
             if (j > 0) {
                 buff_index += j;
             }
@@ -1100,7 +1120,7 @@ void semtech_thread_down(void* pic) {
             send_tx_ack(ic, buff_down[1], buff_down[2], jit_result);
 
             /* send to gwtraf */
-            j = snprintf((json + buff_index), 100-buff_index, ",\"jit_result\":%d}", jit_result);
+            j = snprintf((json + buff_index), 200-buff_index, ",\"jit_result\":%d}", jit_result);
             if (j > 0) {
                 buff_index += j;
             }
