@@ -217,61 +217,61 @@ void semtech_init(int idx) {
     /* look for server address w/ upstream port */
     i = getaddrinfo(servers[idx].addr, servers[idx].port_up, &hints, &result);
     if (i != 0) {
-	MSG("ERROR: [up] getaddrinfo on address %s (PORT %s) returned %s\n", servers[idx].addr, servers[idx].port_up, gai_strerror(i));
-	freeaddrinfo(result);
-	return;
+        MSG("ERROR: [up] getaddrinfo on address %s (PORT %s) returned %s\n", servers[idx].addr, servers[idx].port_up, gai_strerror(i));
+        freeaddrinfo(result);
+        return;
     }
 
     /* try to open socket for upstream traffic */
     for (q=result; q!=NULL; q=q->ai_next) {
-	servers[idx].sock_up = socket(q->ai_family, q->ai_socktype,q->ai_protocol);
-	if (servers[idx].sock_up == -1) continue; /* try next field */
-	else break; /* success, get out of loop */
+        servers[idx].sock_up = socket(q->ai_family, q->ai_socktype,q->ai_protocol);
+        if (servers[idx].sock_up == -1) continue; /* try next field */
+        else break; /* success, get out of loop */
     }
     if (q == NULL) {
-	MSG("ERROR: [up] failed to open socket to any of server %s addresses (port %s)\n", servers[idx].addr, servers[idx].port_up);
-	i = 1;
-	for (q=result; q!=NULL; q=q->ai_next) {
-	    getnameinfo(q->ai_addr, q->ai_addrlen, host_name, sizeof host_name, port_name, sizeof port_name, NI_NUMERICHOST);
-	    MSG("INFO: [up] result %i host:%s service:%s\n", i, host_name, port_name);
-	    ++i;
-	}
-	freeaddrinfo(result);
-	return;
+        MSG("ERROR: [up] failed to open socket to any of server %s addresses (port %s)\n", servers[idx].addr, servers[idx].port_up);
+        i = 1;
+        for (q=result; q!=NULL; q=q->ai_next) {
+            getnameinfo(q->ai_addr, q->ai_addrlen, host_name, sizeof host_name, port_name, sizeof port_name, NI_NUMERICHOST);
+            MSG("INFO: [up] result %i host:%s service:%s\n", i, host_name, port_name);
+            ++i;
+        }
+        freeaddrinfo(result);
+        return;
     }
 
     /* connect so we can send/receive packet with the server only */
     i = connect(servers[idx].sock_up, q->ai_addr, q->ai_addrlen);
     if (i != 0) {
-	MSG("ERROR: [up] connect on address %s (port %s) returned: %s\n", servers[idx].addr, servers[idx].port_up, strerror(errno));
-	freeaddrinfo(result);
-	return;
+        MSG("ERROR: [up] connect on address %s (port %s) returned: %s\n", servers[idx].addr, servers[idx].port_up, strerror(errno));
+        freeaddrinfo(result);
+        return;
     }
 
     /* look for server address w/ downstream port */
     i = getaddrinfo(servers[idx].addr, servers[idx].port_down, &hints, &result);
     if (i != 0) {
-	MSG("ERROR: [down] getaddrinfo on address %s (port %s) returned: %s\n", servers[idx].addr, servers[idx].port_down, gai_strerror(i));
-	freeaddrinfo(result);
-	return;
+        MSG("ERROR: [down] getaddrinfo on address %s (port %s) returned: %s\n", servers[idx].addr, servers[idx].port_down, gai_strerror(i));
+        freeaddrinfo(result);
+        return;
     }
 
     /* try to open socket for downstream traffic */
     for (q=result; q!=NULL; q=q->ai_next) {
-	servers[idx].sock_down = socket(q->ai_family, q->ai_socktype,q->ai_protocol);
-	if (servers[idx].sock_down == -1) continue; /* try next field */
-	else break; /* success, get out of loop */
+        servers[idx].sock_down = socket(q->ai_family, q->ai_socktype,q->ai_protocol);
+        if (servers[idx].sock_down == -1) continue; /* try next field */
+        else break; /* success, get out of loop */
     }
     if (q == NULL) {
-	MSG("ERROR: [down] failed to open socket to any of server %s addresses (port %s)\n", servers[idx].addr, servers[idx].port_down);
-	i = 1;
-	for (q=result; q!=NULL; q=q->ai_next) {
-	    getnameinfo(q->ai_addr, q->ai_addrlen, host_name, sizeof host_name, port_name, sizeof port_name, NI_NUMERICHOST);
-	    MSG("INFO: [down] result %i host:%s service:%s\n", i, host_name, port_name);
-	    ++i;
-	}
-	freeaddrinfo(result);
-	return;
+        MSG("ERROR: [down] failed to open socket to any of server %s addresses (port %s)\n", servers[idx].addr, servers[idx].port_down);
+        i = 1;
+        for (q=result; q!=NULL; q=q->ai_next) {
+            getnameinfo(q->ai_addr, q->ai_addrlen, host_name, sizeof host_name, port_name, sizeof port_name, NI_NUMERICHOST);
+            MSG("INFO: [down] result %i host:%s service:%s\n", i, host_name, port_name);
+            ++i;
+        }
+        freeaddrinfo(result);
+        return;
     }
 
     freeaddrinfo(result);
@@ -279,8 +279,8 @@ void semtech_init(int idx) {
     /* connect so we can send/receive packet with the server only */
     i = connect(servers[idx].sock_down, q->ai_addr, q->ai_addrlen);
     if (i != 0) {
-	MSG("ERROR: [down] connect address %s (port %s) returned: %s\n", servers[idx].addr, servers[idx].port_down, strerror(errno));
-	return;
+        MSG("ERROR: [down] connect address %s (port %s) returned: %s\n", servers[idx].addr, servers[idx].port_down, strerror(errno));
+        return;
     }
 
     /* If we made it through to here, this server is live */
@@ -290,29 +290,29 @@ void semtech_init(int idx) {
 
     /* set upstream socket RX timeout */
     if (servers[idx].live == true) {
-	i = setsockopt(servers[idx].sock_up, SOL_SOCKET, SO_RCVTIMEO, (void *)&push_timeout_half, sizeof push_timeout_half);
-	if (i != 0) {
-	    MSG("ERROR: [up] setsockopt for server %s returned %s\n", servers[idx].addr, strerror(errno));
-	    exit(EXIT_FAILURE);
-	}
+        i = setsockopt(servers[idx].sock_up, SOL_SOCKET, SO_RCVTIMEO, (void *)&push_timeout_half, sizeof push_timeout_half);
+        if (i != 0) {
+            MSG("ERROR: [up] setsockopt for server %s returned %s\n", servers[idx].addr, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
     }
 
     i = pthread_create( &servers[idx].t_up, NULL, (void * (*)(void *))semtech_upstream, (void *) (long) idx);
     if (i!=0) {
-    	MSG("ERROR: [semtech] failed to create upstream thread for server \"%s\"\n",servers[i].addr);
-	exit(EXIT_FAILURE);
+        MSG("ERROR: [semtech] failed to create upstream thread for server \"%s\"\n",servers[i].addr);
+        exit(EXIT_FAILURE);
     }
 }
 
 void semtech_stop(int idx) {
     if (downstream_enabled == true && servers[idx].downstream == true) {
-	pthread_join(servers[idx].t_down, NULL);
-	sem_post(&servers[idx].send_sem);
-	pthread_join(servers[idx].t_up, NULL);
-	if (exit_sig) {
-	    shutdown(servers[idx].sock_up, SHUT_RDWR);
-	    shutdown(servers[idx].sock_down, SHUT_RDWR);
-	}
+        pthread_join(servers[idx].t_down, NULL);
+        sem_post(&servers[idx].send_sem);
+        pthread_join(servers[idx].t_up, NULL);
+        if (exit_sig) {
+            shutdown(servers[idx].sock_up, SHUT_RDWR);
+            shutdown(servers[idx].sock_down, SHUT_RDWR);
+        }
     }
 }
 
@@ -347,25 +347,25 @@ static int send_tx_ack(int ic, uint8_t token_h, uint8_t token_l, enum jit_error_
                 memcpy((void *)(buff_ack + buff_index), (void *)"\"COLLISION_PACKET\"", 18);
                 buff_index += 18;
                 /* update stats */
-		increment_down(TX_REJ_COLL_PACKET);
+                increment_down(TX_REJ_COLL_PACKET);
                 break;
             case JIT_ERROR_TOO_LATE:
                 memcpy((void *)(buff_ack + buff_index), (void *)"\"TOO_LATE\"", 10);
                 buff_index += 10;
                 /* update stats */
-		increment_down(TX_REJ_TOO_LATE);
+                increment_down(TX_REJ_TOO_LATE);
                 break;
             case JIT_ERROR_TOO_EARLY:
                 memcpy((void *)(buff_ack + buff_index), (void *)"\"TOO_EARLY\"", 11);
                 buff_index += 11;
                 /* update stats */
-		increment_down(TX_REJ_TOO_EARLY);
+                increment_down(TX_REJ_TOO_EARLY);
                 break;
             case JIT_ERROR_COLLISION_BEACON:
                 memcpy((void *)(buff_ack + buff_index), (void *)"\"COLLISION_BEACON\"", 18);
                 buff_index += 18;
                 /* update stats */
-		increment_down(TX_REJ_COLL_BEACON);
+                increment_down(TX_REJ_COLL_BEACON);
                 break;
             case JIT_ERROR_TX_FREQ:
                 memcpy((void *)(buff_ack + buff_index), (void *)"\"TX_FREQ\"", 9);
@@ -397,7 +397,7 @@ static int send_tx_ack(int ic, uint8_t token_h, uint8_t token_l, enum jit_error_
 
 void semtech_thread_down(void* pic) {
     int i; /* loop variables */
-	int ic = (int) (long) pic;
+        int ic = (int) (long) pic;
 
     /* configuration and metadata for an outbound packet */
     struct lgw_pkt_tx_s txpkt;
@@ -460,10 +460,10 @@ void semtech_thread_down(void* pic) {
     int j,buff_index;
 
     /* set downstream socket RX timeout */
-	i = setsockopt(servers[ic].sock_down, SOL_SOCKET, SO_RCVTIMEO, (void *)&pull_timeout, sizeof pull_timeout);
+        i = setsockopt(servers[ic].sock_down, SOL_SOCKET, SO_RCVTIMEO, (void *)&pull_timeout, sizeof pull_timeout);
     if (i != 0) {
-		//TODO Should this failure bring the application down?
-		MSG("ERROR: [down] setsockopt for server %s returned %s\n", servers[ic].addr, strerror(errno));
+                //TODO Should this failure bring the application down?
+                MSG("ERROR: [down] setsockopt for server %s returned %s\n", servers[ic].addr, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -477,7 +477,7 @@ void semtech_thread_down(void* pic) {
     last_beacon_gps_time.tv_sec = 0;
     last_beacon_gps_time.tv_nsec = 0;
 
-	//TODO: this should only be present in one thread => make special beacon thread?
+        //TODO: this should only be present in one thread => make special beacon thread?
     /* beacon packet parameters */
     beacon_pkt.tx_mode = ON_GPS; /* send on PPS pulse */
     beacon_pkt.rf_chain = 0; /* antenna A */
@@ -526,7 +526,7 @@ void semtech_thread_down(void* pic) {
         /* auto-quit if the threshold is crossed */
         if ((autoquit_threshold > 0) && (autoquit_cnt >= autoquit_threshold)) {
             exit_sig = true;
-			MSG("INFO: [down] for server %s the last %u PULL_DATA were not ACKed, exiting down thread for this server.\n", servers[ic].addr, autoquit_threshold);
+                        MSG("INFO: [down] for server %s the last %u PULL_DATA were not ACKed, exiting down thread for this server.\n", servers[ic].addr, autoquit_threshold);
             break;
         }
 
@@ -537,7 +537,7 @@ void semtech_thread_down(void* pic) {
         buff_req[2] = token_l;
 
         /* send PULL request and record time */
-	send(servers[ic].sock_down, (void *)buff_req, sizeof buff_req, 0);
+        send(servers[ic].sock_down, (void *)buff_req, sizeof buff_req, 0);
         clock_gettime(CLOCK_MONOTONIC, &send_time);
         pthread_mutex_lock(&mx_meas_dw);
         meas_dw_pull_sent[ic] += 1;
@@ -550,17 +550,17 @@ void semtech_thread_down(void* pic) {
         while ((int)difftimespec(recv_time, send_time) < keepalive_time) {
 
             /* try to receive a datagram */
-	    msg_len = recv(servers[ic].sock_down, (void *)buff_down, (sizeof buff_down)-1, 0);
+            msg_len = recv(servers[ic].sock_down, (void *)buff_down, (sizeof buff_down)-1, 0);
             clock_gettime(CLOCK_MONOTONIC, &recv_time);
 
             /* Pre-allocate beacon slots in JiT queue, to check downlink collisions */
             //TODO: this should only be present in one thread => make special beacon thread?
-			//TODO: beacon can also work on local time base, implement.
-			beacon_loop = JIT_NUM_BEACON_IN_QUEUE - jit_queue.num_beacon;
+                        //TODO: beacon can also work on local time base, implement.
+                        beacon_loop = JIT_NUM_BEACON_IN_QUEUE - jit_queue.num_beacon;
             retry = 0;
             while (beacon_loop && (beacon_period != 0) && (beacon_enabled == true) && (gps_active == true)) {
-			/* if beacon must be prepared, load it and wait for it to trigger */
-			//if ((beacon_next_pps == true) && (gps_active == true))
+                        /* if beacon must be prepared, load it and wait for it to trigger */
+                        //if ((beacon_next_pps == true) && (gps_active == true))
                 pthread_mutex_lock(&mx_timeref);
                 /* Wait for GPS to be ready before inserting beacons in JiT queue */
                 if ((gps_ref_valid == true) && (xtal_correct_ok == true)) {
@@ -611,7 +611,7 @@ void semtech_thread_down(void* pic) {
                     jit_result = jit_enqueue(&jit_queue, &current_concentrator_time, &beacon_pkt, JIT_PKT_TYPE_BEACON);
                     if (jit_result == JIT_ERROR_OK) {
                         /* update stats */
-			increment_down(BEACON_QUEUED);
+                        increment_down(BEACON_QUEUED);
 
                         /* One more beacon in the queue */
                         beacon_loop--;
@@ -621,21 +621,21 @@ void semtech_thread_down(void* pic) {
                         /* display beacon payload */
                         LOGGER("--- Beacon queued (count_us=%u) - payload: ---\n", beacon_pkt.count_us);
                         for (i=0; i<24; ++i) {
-                        	LOGGER("0x%02X", beacon_pkt.payload[i]);
+                                LOGGER("0x%02X", beacon_pkt.payload[i]);
                             if (i%8 == 7) {
-                            	LOGGER("\n");
+                                LOGGER("\n");
                             } else {
-                            	LOGGER(" - ");
+                                LOGGER(" - ");
                             }
                         }
                         if (i%8 != 0) {
-                        	LOGGER("\n");
+                                LOGGER("\n");
                         }
                         LOGGER("--- end of payload ---\n");
                     } else {
                         /* update stats */
                         if (jit_result != JIT_ERROR_COLLISION_BEACON) {
-			    increment_down(BEACON_REJECTED);
+                            increment_down(BEACON_REJECTED);
                         }
                         /* In case previous enqueue failed, we retry one period later until it succeeds */
                         /* Note: In case the GPS has been unlocked for a while, there can be lots of retries */
@@ -657,9 +657,9 @@ void semtech_thread_down(void* pic) {
 
             /* if the datagram does not respect protocol, just ignore it */
             if ((msg_len < 4) || (buff_down[0] != PROTOCOL_VERSION) || ((buff_down[3] != PKT_PULL_RESP) && (buff_down[3] != PKT_PULL_ACK))) {
-				//TODO Investigate why this message is logged only at shutdown, i.e. all messages produced here are collected and
-				//     spit out at program termination. This can lead to an unstable application.
-				LOGGER("WARNING: [down] ignoring invalid packet len=%d, protocol_version=%d, id=%d\n", msg_len, buff_down[0], buff_down[3]);
+                                //TODO Investigate why this message is logged only at shutdown, i.e. all messages produced here are collected and
+                                //     spit out at program termination. This can lead to an unstable application.
+                                LOGGER("WARNING: [down] ignoring invalid packet len=%d, protocol_version=%d, id=%d\n", msg_len, buff_down[0], buff_down[3]);
                 continue;
             }
 
@@ -667,7 +667,7 @@ void semtech_thread_down(void* pic) {
             if (buff_down[3] == PKT_PULL_ACK) {
                 if ((buff_down[1] == token_h) && (buff_down[2] == token_l)) {
                     if (req_ack) {
-                    	LOGGER("INFO: [down] for server %s duplicate ACK received :)\n",servers[i].addr);
+                        LOGGER("INFO: [down] for server %s duplicate ACK received :)\n",servers[i].addr);
                     } else { /* if that packet was not already acknowledged */
                         req_ack = true;
                         autoquit_cnt = 0;
@@ -677,17 +677,17 @@ void semtech_thread_down(void* pic) {
                         LOGGER("INFO: [down] for server %s PULL_ACK received in %i ms\n", servers[i].addr, (int)(1000 * difftimespec(recv_time, send_time)));
                     }
                 } else { /* out-of-sync token */
-                	LOGGER("INFO: [down] for server %s, received out-of-sync ACK\n",servers[i].addr);
+                        LOGGER("INFO: [down] for server %s, received out-of-sync ACK\n",servers[i].addr);
                 }
                 continue;
             }
 
 
-			//TODO: This might generate to much logging data. The reporting should be reevaluated and an option -q should be added.
+                        //TODO: This might generate to much logging data. The reporting should be reevaluated and an option -q should be added.
             /* the datagram is a PULL_RESP */
             buff_down[msg_len] = 0; /* add string terminator, just to be safe */
             LOGGER("INFO: [down] for server %s serv_addr[ic] PULL_RESP received  - token[%d:%d] :)\n",servers[i].addr, buff_down[1], buff_down[2]); /* very verbose */
-			MSG_DEBUG(DEBUG_LOG,"\nJSON down: %s\n", (char *)(buff_down + 4)); /* DEBUG: display JSON payload */
+                        MSG_DEBUG(DEBUG_LOG,"\nJSON down: %s\n", (char *)(buff_down + 4)); /* DEBUG: display JSON payload */
 
             meas_dw_dgram_rcv[ic] += 1; /* count all datagrams that are received */
 
@@ -695,26 +695,26 @@ void semtech_thread_down(void* pic) {
             memset(&txpkt, 0, sizeof txpkt);
             root_val = json_parse_string_with_comments((const char *)(buff_down + 4)); /* JSON offset */
             if (root_val == NULL) {
-            	LOGGER("WARNING: [down] invalid JSON, TX aborted\n");
+                LOGGER("WARNING: [down] invalid JSON, TX aborted\n");
                 continue;
             }
 
             /* look for JSON sub-object 'txpk' */
             txpk_obj = json_object_get_object(json_value_get_object(root_val), "txpk");
             if (txpk_obj == NULL) {
-            	LOGGER("WARNING: [down] no \"txpk\" object in JSON, TX aborted\n");
+                LOGGER("WARNING: [down] no \"txpk\" object in JSON, TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
 
-	    /* start building gwtraf data */
-	    buff_index = 0;
-	    system_time = time(NULL);
-	    strftime(iso_timestamp, sizeof iso_timestamp, "%FT%TZ", gmtime(&system_time));
-	    j = snprintf((char *)(json + buff_index), 100-buff_index, "{\"type\":\"downlink\",\"gw\":\"%016llX\",\"time\":\"%s\",", (long long unsigned int) lgwm, iso_timestamp);
-	    if (j > 0) {
-		buff_index += j;
-	    }
+            /* start building gwtraf data */
+            buff_index = 0;
+            system_time = time(NULL);
+            strftime(iso_timestamp, sizeof iso_timestamp, "%FT%TZ", gmtime(&system_time));
+            j = snprintf((char *)(json + buff_index), 100-buff_index, "{\"type\":\"downlink\",\"gw\":\"%016llX\",\"time\":\"%s\",", (long long unsigned int) lgwm, iso_timestamp);
+            if (j > 0) {
+                buff_index += j;
+            }
 
             /* Parse "immediate" tag, or target timestamp, or UTC time to be converted by GPS (mandatory) */
             i = json_object_get_boolean(txpk_obj,"imme"); /* can be 1 if true, 0 if false, or -1 if not a JSON boolean */
@@ -732,19 +732,19 @@ void semtech_thread_down(void* pic) {
 
                     /* Concentrator timestamp is given, we consider it is a Class A downlink */
                     downlink_type = JIT_PKT_TYPE_DOWNLINK_CLASS_A;
-		    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
-		    if (j > 0) {
-			buff_index += j;
-		    }
+                    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
+                    if (j > 0) {
+                        buff_index += j;
+                    }
                 } else {
                     /* TX procedure: send on UTC time (converted to timestamp value) */
                     str = json_object_get_string(txpk_obj, "time");
                     if (str == NULL) {
-                    	LOGGER("WARNING: [down] no mandatory \"txpk.tmst\" or \"txpk.time\" objects in JSON, TX aborted\n");
+                        LOGGER("WARNING: [down] no mandatory \"txpk.tmst\" or \"txpk.time\" objects in JSON, TX aborted\n");
                         json_value_free(root_val);
                         continue;
                     }
-					if (gps_active == true) {
+                                        if (gps_active == true) {
                         pthread_mutex_lock(&mx_timeref);
                         if (gps_ref_valid == true) {
                             local_ref = time_reference_gps;
@@ -759,7 +759,7 @@ void semtech_thread_down(void* pic) {
                             continue;
                         }
                     } else {
-                    	LOGGER("WARNING: [down] GPS disabled, impossible to send packet on specific UTC time, TX aborted\n");
+                        LOGGER("WARNING: [down] GPS disabled, impossible to send packet on specific UTC time, TX aborted\n");
                         json_value_free(root_val);
 
                         /* send acknoledge datagram to server */
@@ -769,7 +769,7 @@ void semtech_thread_down(void* pic) {
 
                     i = sscanf (str, "%4hd-%2hd-%2hdT%2hd:%2hd:%9lf", &x0, &x1, &x2, &x3, &x4, &x5);
                     if (i != 6 ) {
-                    	LOGGER("WARNING: [down] \"txpk.time\" must follow ISO 8601 format, TX aborted\n");
+                        LOGGER("WARNING: [down] \"txpk.time\" must follow ISO 8601 format, TX aborted\n");
                         json_value_free(root_val);
                         continue;
                     }
@@ -786,22 +786,22 @@ void semtech_thread_down(void* pic) {
                     /* transform UTC time to timestamp */
                     i = lgw_utc2cnt(local_ref, utc_tx, &(txpkt.count_us));
                     if (i != LGW_GPS_SUCCESS) {
-                    	LOGGER("WARNING: [down] could not convert UTC time to timestamp, TX aborted\n");
+                        LOGGER("WARNING: [down] could not convert UTC time to timestamp, TX aborted\n");
                         json_value_free(root_val);
                         continue;
                     } else {
-                    	LOGGER("INFO: [down] a packet will be sent on timestamp value %u (calculated from UTC time)\n", txpkt.count_us);
+                        LOGGER("INFO: [down] a packet will be sent on timestamp value %u (calculated from UTC time)\n", txpkt.count_us);
                     }
 
-		    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
-		    if (j > 0) {
-			buff_index += j;
-		    }
+                    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
+                    if (j > 0) {
+                        buff_index += j;
+                    }
 
-		    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
-		    if (j > 0) {
-			buff_index += j;
-		    }
+                    j = snprintf((json + buff_index), 100-buff_index, ",\"timestamp\":%d",txpkt.count_us);
+                    if (j > 0) {
+                        buff_index += j;
+                    }
 
                     /* GPS timestamp is given, we consider it is a Class B downlink */
                     downlink_type = JIT_PKT_TYPE_DOWNLINK_CLASS_B;
@@ -817,43 +817,43 @@ void semtech_thread_down(void* pic) {
             /* parse target frequency (mandatory) */
             val = json_object_get_value(txpk_obj,"freq");
             if (val == NULL) {
-            	LOGGER("WARNING: [down] no mandatory \"txpk.freq\" object in JSON, TX aborted\n");
+                LOGGER("WARNING: [down] no mandatory \"txpk.freq\" object in JSON, TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
             txpkt.freq_hz = (uint32_t)((double)(1.0e6) * json_value_get_number(val));
-	    j = snprintf((json + buff_index), 100-buff_index, ",\"frequency\":%d,",txpkt.freq_hz);
-	    if (j > 0) {
-		buff_index += j;
-	    }
+            j = snprintf((json + buff_index), 100-buff_index, ",\"frequency\":%d,",txpkt.freq_hz);
+            if (j > 0) {
+                buff_index += j;
+            }
 
             /* parse RF chain used for TX (mandatory) */
             val = json_object_get_value(txpk_obj,"rfch");
             if (val == NULL) {
-            	LOGGER("WARNING: [down] no mandatory \"txpk.rfch\" object in JSON, TX aborted\n");
+                LOGGER("WARNING: [down] no mandatory \"txpk.rfch\" object in JSON, TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
             txpkt.rf_chain = (uint8_t)json_value_get_number(val);
-	    j = snprintf((json + buff_index), 100-buff_index, ",\"rf_chain\":%d",txpkt.rf_chain);
-	    if (j > 0) {
-		buff_index += j;
-	    }
-		
+            j = snprintf((json + buff_index), 100-buff_index, ",\"rf_chain\":%d",txpkt.rf_chain);
+            if (j > 0) {
+                buff_index += j;
+            }
+                
             /* parse TX power (optional field) */
             val = json_object_get_value(txpk_obj,"powe");
             if (val != NULL) {
                 txpkt.rf_power = (int8_t)json_value_get_number(val) - antenna_gain;
-		j = snprintf((json + buff_index), 100-buff_index, ",\"rf_power\":%d",txpkt.rf_power);
-		if (j > 0) {
-		    buff_index += j;
-		}
+                j = snprintf((json + buff_index), 100-buff_index, ",\"rf_power\":%d",txpkt.rf_power);
+                if (j > 0) {
+                    buff_index += j;
+                }
             }
 
             /* Parse modulation (mandatory) */
             str = json_object_get_string(txpk_obj, "modu");
             if (str == NULL) {
-            	LOGGER("WARNING: [down] no mandatory \"txpk.modu\" object in JSON, TX aborted\n");
+                LOGGER("WARNING: [down] no mandatory \"txpk.modu\" object in JSON, TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
@@ -864,17 +864,17 @@ void semtech_thread_down(void* pic) {
                 /* Parse Lora spreading-factor and modulation bandwidth (mandatory) */
                 str = json_object_get_string(txpk_obj, "datr");
                 if (str == NULL) {
-                	LOGGER("WARNING: [down] no mandatory \"txpk.datr\" object in JSON, TX aborted\n");
+                        LOGGER("WARNING: [down] no mandatory \"txpk.datr\" object in JSON, TX aborted\n");
                     json_value_free(root_val);
                     continue;
                 }
-		j = snprintf((json + buff_index), 100-buff_index, ",\"modulation\":\"LORA\",\"data_rate\":\"%s\"",str);
-		if (j > 0) {
-		    buff_index += j;
-		}
+                j = snprintf((json + buff_index), 100-buff_index, ",\"modulation\":\"LORA\",\"data_rate\":\"%s\"",str);
+                if (j > 0) {
+                    buff_index += j;
+                }
                 i = sscanf(str, "SF%2hdBW%3hd", &x0, &x1);
                 if (i != 2) {
-                	LOGGER("WARNING: [down] format error in \"txpk.datr\", TX aborted\n");
+                        LOGGER("WARNING: [down] format error in \"txpk.datr\", TX aborted\n");
                     json_value_free(root_val);
                     continue;
                 }
@@ -886,7 +886,7 @@ void semtech_thread_down(void* pic) {
                     case 11: txpkt.datarate = DR_LORA_SF11; break;
                     case 12: txpkt.datarate = DR_LORA_SF12; break;
                     default:
-                    	LOGGER("WARNING: [down] format error in \"txpk.datr\", invalid SF, TX aborted\n");
+                        LOGGER("WARNING: [down] format error in \"txpk.datr\", invalid SF, TX aborted\n");
                         json_value_free(root_val);
                         continue;
                 }
@@ -895,7 +895,7 @@ void semtech_thread_down(void* pic) {
                     case 250: txpkt.bandwidth = BW_250KHZ; break;
                     case 500: txpkt.bandwidth = BW_500KHZ; break;
                     default:
-                    	LOGGER("WARNING: [down] format error in \"txpk.datr\", invalid BW, TX aborted\n");
+                        LOGGER("WARNING: [down] format error in \"txpk.datr\", invalid BW, TX aborted\n");
                         json_value_free(root_val);
                         continue;
                 }
@@ -903,14 +903,14 @@ void semtech_thread_down(void* pic) {
                 /* Parse ECC coding rate (optional field) */
                 str = json_object_get_string(txpk_obj, "codr");
                 if (str == NULL) {
-                	LOGGER("WARNING: [down] no mandatory \"txpk.codr\" object in json, TX aborted\n");
+                        LOGGER("WARNING: [down] no mandatory \"txpk.codr\" object in json, TX aborted\n");
                     json_value_free(root_val);
                     continue;
                 }
-		j = snprintf((json + buff_index), 100-buff_index, "\"coding_rate\":\"%s\"", str);
-		if (j > 0) {
-		    buff_index += j;
-		}
+                j = snprintf((json + buff_index), 100-buff_index, "\"coding_rate\":\"%s\"", str);
+                if (j > 0) {
+                    buff_index += j;
+                }
                 if      (strcmp(str, "4/5") == 0) txpkt.coderate = CR_LORA_4_5;
                 else if (strcmp(str, "4/6") == 0) txpkt.coderate = CR_LORA_4_6;
                 else if (strcmp(str, "2/3") == 0) txpkt.coderate = CR_LORA_4_6;
@@ -918,7 +918,7 @@ void semtech_thread_down(void* pic) {
                 else if (strcmp(str, "4/8") == 0) txpkt.coderate = CR_LORA_4_8;
                 else if (strcmp(str, "1/2") == 0) txpkt.coderate = CR_LORA_4_8;
                 else {
-                	LOGGER("WARNING: [down] format error in \"txpk.codr\", TX aborted\n");
+                        LOGGER("WARNING: [down] format error in \"txpk.codr\", TX aborted\n");
                     json_value_free(root_val);
                     continue;
                 }
@@ -949,7 +949,7 @@ void semtech_thread_down(void* pic) {
                 /* parse FSK bitrate (mandatory) */
                 val = json_object_get_value(txpk_obj,"datr");
                 if (val == NULL) {
-                	LOGGER("WARNING: [down] no mandatory \"txpk.datr\" object in JSON, TX aborted\n");
+                        LOGGER("WARNING: [down] no mandatory \"txpk.datr\" object in JSON, TX aborted\n");
                     json_value_free(root_val);
                     continue;
                 }
@@ -958,7 +958,7 @@ void semtech_thread_down(void* pic) {
                 /* parse frequency deviation (mandatory) */
                 val = json_object_get_value(txpk_obj,"fdev");
                 if (val == NULL) {
-                	LOGGER("WARNING: [down] no mandatory \"txpk.fdev\" object in JSON, TX aborted\n");
+                        LOGGER("WARNING: [down] no mandatory \"txpk.fdev\" object in JSON, TX aborted\n");
                     json_value_free(root_val);
                     continue;
                 }
@@ -978,7 +978,7 @@ void semtech_thread_down(void* pic) {
                 }
 
             } else {
-            	LOGGER("WARNING: [down] invalid modulation in \"txpk.modu\", TX aborted\n");
+                LOGGER("WARNING: [down] invalid modulation in \"txpk.modu\", TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
@@ -986,28 +986,47 @@ void semtech_thread_down(void* pic) {
             /* Parse payload length (mandatory) */
             val = json_object_get_value(txpk_obj,"size");
             if (val == NULL) {
-            	LOGGER("WARNING: [down] no mandatory \"txpk.size\" object in JSON, TX aborted\n");
+                LOGGER("WARNING: [down] no mandatory \"txpk.size\" object in JSON, TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
             txpkt.size = (uint16_t)json_value_get_number(val);
 
-	    j = snprintf((json + buff_index), 100-buff_index, ",\"length\":%d", txpkt.size);
-	    if (j > 0) {
-		buff_index += j;
-	    }
+            j = snprintf((json + buff_index), 100-buff_index, ",\"length\":%d", txpkt.size);
+            if (j > 0) {
+                buff_index += j;
+            }
 
             /* Parse payload data (mandatory) */
             str = json_object_get_string(txpk_obj, "data");
             if (str == NULL) {
-            	LOGGER("WARNING: [down] no mandatory \"txpk.data\" object in JSON, TX aborted\n");
+                LOGGER("WARNING: [down] no mandatory \"txpk.data\" object in JSON, TX aborted\n");
                 json_value_free(root_val);
                 continue;
             }
             i = b64_to_bin(str, strlen(str), txpkt.payload, sizeof txpkt.payload);
             if (i != txpkt.size) {
-            	LOGGER("WARNING: [down] mismatch between .size and .data size once converter to binary\n");
+                LOGGER("WARNING: [down] mismatch between .size and .data size once converter to binary\n");
             }
+
+            LOGGER("=== LoRa TX Packet, semtech transport, before jit add ===\n");
+            LOGGER("freq_hz: %u\n", txpkt.freq_hz);
+            LOGGER("tx_mode: %u\n", txpkt.tx_mode);
+            LOGGER("count_us: %u\n", txpkt.count_us);
+            LOGGER("rf_chain: %u\n", txpkt.rf_chain);
+            LOGGER("rf_power: %d\n", txpkt.rf_power);
+            LOGGER("modulation: %u\n", txpkt.modulation);
+            LOGGER("bandwidth: %u\n", txpkt.bandwidth);
+            LOGGER("datarate: %u\n", txpkt.datarate);
+            LOGGER("coderate: %u\n", txpkt.coderate);
+            LOGGER("invert_pol: %d\n", txpkt.invert_pol);
+            LOGGER("f_dev: %u\n", txpkt.f_dev);
+            LOGGER("preamble: %u\n", txpkt.preamble);
+            LOGGER("no_crc: %d\n", txpkt.no_crc);
+            LOGGER("no_header: %d\n", txpkt.no_header);
+            LOGGER("size: %u\n", txpkt.size);
+            // LOGGER("payload: %d\n", pkt.payload);
+            LOGGER("======================\n");
 
             /* free the JSON parse tree from memory */
             json_value_free(root_val);
@@ -1034,17 +1053,17 @@ void semtech_thread_down(void* pic) {
             }
 
             if (jit_result == JIT_ERROR_OK) {
-		int pwr_level = -100;
+                int pwr_level = -100;
                 for (i=0; i<txlut.size; i++) {
                     if (txlut.lut[i].rf_power <= txpkt.rf_power &&
-			  pwr_level < txlut.lut[i].rf_power) {
-			pwr_level = txlut.lut[i].rf_power;
+                          pwr_level < txlut.lut[i].rf_power) {
+                        pwr_level = txlut.lut[i].rf_power;
                     }
                 }
-		if (pwr_level != txpkt.rf_power) {
-		    LOGGER("INFO: RF Power adjusted to %d from %d\n", pwr_level, txpkt.rf_power);
-		    txpkt.rf_power = pwr_level;
-		}
+                if (pwr_level != txpkt.rf_power) {
+                    LOGGER("INFO: RF Power adjusted to %d from %d\n", pwr_level, txpkt.rf_power);
+                    txpkt.rf_power = pwr_level;
+                }
             }
 
             /* insert packet to be sent into JIT queue */
@@ -1053,23 +1072,42 @@ void semtech_thread_down(void* pic) {
                 get_concentrator_time(&current_concentrator_time, current_unix_time);
                 jit_result = jit_enqueue(&jit_queue, &current_concentrator_time, &txpkt, downlink_type);
                 if (jit_result != JIT_ERROR_OK) {
-                	LOGGER("ERROR: Packet REJECTED (jit error=%d)\n", jit_result);
+                        LOGGER("ERROR: Packet REJECTED (jit error=%d)\n", jit_result);
                 }
-		increment_down(TX_REQUESTED);
+                increment_down(TX_REQUESTED);
             }
+
+            LOGGER("=== LoRa TX Packet, semtech transport, after jit add ===\n");
+            LOGGER("freq_hz: %u\n", txpkt.freq_hz);
+            LOGGER("tx_mode: %u\n", txpkt.tx_mode);
+            LOGGER("count_us: %u\n", txpkt.count_us);
+            LOGGER("rf_chain: %u\n", txpkt.rf_chain);
+            LOGGER("rf_power: %d\n", txpkt.rf_power);
+            LOGGER("modulation: %u\n", txpkt.modulation);
+            LOGGER("bandwidth: %u\n", txpkt.bandwidth);
+            LOGGER("datarate: %u\n", txpkt.datarate);
+            LOGGER("coderate: %u\n", txpkt.coderate);
+            LOGGER("invert_pol: %d\n", txpkt.invert_pol);
+            LOGGER("f_dev: %u\n", txpkt.f_dev);
+            LOGGER("preamble: %u\n", txpkt.preamble);
+            LOGGER("no_crc: %d\n", txpkt.no_crc);
+            LOGGER("no_header: %d\n", txpkt.no_header);
+            LOGGER("size: %u\n", txpkt.size);
+            // LOGGER("payload: %d\n", pkt.payload);
+            LOGGER("======================\n");
 
             /* Send acknowledge datagram to server */
             send_tx_ack(ic, buff_down[1], buff_down[2], jit_result);
 
-	    /* send to gwtraf */
-	    j = snprintf((json + buff_index), 100-buff_index, ",\"jit_result\":%d}", jit_result);
-	    if (j > 0) {
-		buff_index += j;
-	    }
-	    ++buff_index;
-	    /* end of JSON datagram payload */
-	    json[buff_index] = 0; /* add string terminator, for safety */
-	    transport_send_downtraf(json, ++buff_index);
+            /* send to gwtraf */
+            j = snprintf((json + buff_index), 100-buff_index, ",\"jit_result\":%d}", jit_result);
+            if (j > 0) {
+                buff_index += j;
+            }
+            ++buff_index;
+            /* end of JSON datagram payload */
+            json[buff_index] = 0; /* add string terminator, for safety */
+            transport_send_downtraf(json, ++buff_index);
         }
     }
     MSG("INFO: End of downstream thread\n");
@@ -1091,13 +1129,13 @@ void semtech_data_up(int idx, int nb_pkt, struct lgw_pkt_rx_s *rxpkt, bool send_
     entry->next = NULL;
     if (send_report) {
         pthread_mutex_lock(&mx_stat_rep);
-	entry->status = strdup(status_report);
+        entry->status = strdup(status_report);
         pthread_mutex_unlock(&mx_stat_rep);
         if (entry->status == NULL) {
-	    MSG("ERROR: [semtech] cannot allocate memory for status report\n"); // Not fatal
+            MSG("ERROR: [semtech] cannot allocate memory for status report\n"); // Not fatal
         }
     } else {
-	entry->status = NULL;
+        entry->status = NULL;
     }
     pthread_mutex_lock(&mx_queues);
     last = servers[idx].queue;
@@ -1168,341 +1206,341 @@ void semtech_upstream(void *pic) {
 
         rxpkt = entry->data;
 
-	//TODO: is this okay, can time be recruited from the local system if gps is not working?
-	/* get a copy of GPS time reference (avoid 1 mutex per packet) */
-		if ((entry->nbpkt > 0) && (gps_active == true)) {
-	    pthread_mutex_lock(&mx_timeref);
-	    ref_ok = gps_ref_valid;
-	    local_ref = time_reference_gps;
-	    pthread_mutex_unlock(&mx_timeref);
-	} else {
-	    ref_ok = false;
-	}
+        //TODO: is this okay, can time be recruited from the local system if gps is not working?
+        /* get a copy of GPS time reference (avoid 1 mutex per packet) */
+                if ((entry->nbpkt > 0) && (gps_active == true)) {
+            pthread_mutex_lock(&mx_timeref);
+            ref_ok = gps_ref_valid;
+            local_ref = time_reference_gps;
+            pthread_mutex_unlock(&mx_timeref);
+        } else {
+            ref_ok = false;
+        }
 
-	/* start composing datagram with the header */
-	token_h = (uint8_t)rand(); /* random token */
-	token_l = (uint8_t)rand(); /* random token */
-	buff_up[1] = token_h;
-	buff_up[2] = token_l;
-	buff_index = 12; /* 12-byte header */
+        /* start composing datagram with the header */
+        token_h = (uint8_t)rand(); /* random token */
+        token_l = (uint8_t)rand(); /* random token */
+        buff_up[1] = token_h;
+        buff_up[2] = token_l;
+        buff_index = 12; /* 12-byte header */
 
-	/* start of JSON structure */
+        /* start of JSON structure */
 
-	/* Make when we are, define the start of the packet array. */
-	system_time = time(NULL);
-	strftime(iso_timestamp, sizeof iso_timestamp, "%FT%TZ", gmtime(&system_time));
-	  j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, "{\"time\":\"%s\",\"rxpk\":[", iso_timestamp);
-	if (j > 0) {
-	    buff_index += j;
-	} else {
-		MSG("ERROR: [up] failed to define the transmission buffer, this is fatal, sorry.\n");
-		exit(EXIT_FAILURE);
-	}
+        /* Make when we are, define the start of the packet array. */
+        system_time = time(NULL);
+        strftime(iso_timestamp, sizeof iso_timestamp, "%FT%TZ", gmtime(&system_time));
+          j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, "{\"time\":\"%s\",\"rxpk\":[", iso_timestamp);
+        if (j > 0) {
+            buff_index += j;
+        } else {
+                MSG("ERROR: [up] failed to define the transmission buffer, this is fatal, sorry.\n");
+                exit(EXIT_FAILURE);
+        }
 
-	// this has been incorporated in the above (checked!) definition.
-	//memcpy((void *)(buff_up + buff_index), (void *)"{\"rxpk\":[", 9);
-	//buff_index += 9;
+        // this has been incorporated in the above (checked!) definition.
+        //memcpy((void *)(buff_up + buff_index), (void *)"{\"rxpk\":[", 9);
+        //buff_index += 9;
 
-	/* serialize Lora packets metadata and payload */
-	pkt_in_dgram = 0;
-	for (i=0; i < entry->nbpkt; ++i) {
-	    p = &rxpkt[i];
+        /* serialize Lora packets metadata and payload */
+        pkt_in_dgram = 0;
+        for (i=0; i < entry->nbpkt; ++i) {
+            p = &rxpkt[i];
 
-	    /* basic packet filtering */
-	    /* Note that in this handling some errors can occur the should not occur. We changed these
-	     * from fatal errors to transient errors. In most cases the users expect that the systems keeps
-	     * alive, just starts routing the next packet */
-	    switch(p->status) {
-		case STAT_CRC_OK:
-		    if (!fwd_valid_pkt) {
-			continue; /* skip that packet */
-		    }
-		    break;
-		case STAT_CRC_BAD:
-		    if (!fwd_error_pkt) {
-			continue; /* skip that packet */
-		    }
-		    break;
-		case STAT_NO_CRC:
-		    if (!fwd_nocrc_pkt) {
-			continue; /* skip that packet */
-		    }
-		    break;
-		default:
-		    continue; /* skip that packet */
-		    // exit(EXIT_FAILURE);
-	    }
+            /* basic packet filtering */
+            /* Note that in this handling some errors can occur the should not occur. We changed these
+             * from fatal errors to transient errors. In most cases the users expect that the systems keeps
+             * alive, just starts routing the next packet */
+            switch(p->status) {
+                case STAT_CRC_OK:
+                    if (!fwd_valid_pkt) {
+                        continue; /* skip that packet */
+                    }
+                    break;
+                case STAT_CRC_BAD:
+                    if (!fwd_error_pkt) {
+                        continue; /* skip that packet */
+                    }
+                    break;
+                case STAT_NO_CRC:
+                    if (!fwd_nocrc_pkt) {
+                        continue; /* skip that packet */
+                    }
+                    break;
+                default:
+                    continue; /* skip that packet */
+                    // exit(EXIT_FAILURE);
+            }
 
-	    /* Start of packet, add inter-packet separator if necessary */
-	    if (pkt_in_dgram == 0) {
-		buff_up[buff_index] = '{';
-		++buff_index;
-	    } else {
-		buff_up[buff_index] = ',';
-		buff_up[buff_index+1] = '{';
-		buff_index += 2;
-	    }
+            /* Start of packet, add inter-packet separator if necessary */
+            if (pkt_in_dgram == 0) {
+                buff_up[buff_index] = '{';
+                ++buff_index;
+            } else {
+                buff_up[buff_index] = ',';
+                buff_up[buff_index+1] = '{';
+                buff_index += 2;
+            }
 
-	    /* RAW timestamp, 8-17 useful chars */
-	    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, "\"tmst\":%u", p->count_us);
-	    if (j > 0) {
-		buff_index += j;
-	    } else {
-		MSG("ERROR: [up] failed to add field \"tmst\" to the transmission buffer.\n");
-		continue; /* skip that packet */
-		//exit(EXIT_FAILURE);
-	    }
+            /* RAW timestamp, 8-17 useful chars */
+            j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, "\"tmst\":%u", p->count_us);
+            if (j > 0) {
+                buff_index += j;
+            } else {
+                MSG("ERROR: [up] failed to add field \"tmst\" to the transmission buffer.\n");
+                continue; /* skip that packet */
+                //exit(EXIT_FAILURE);
+            }
 
-	    /* Packet RX time (GPS based), 37 useful chars */
-	    //TODO: Ga na of dit packet zonder gps inderdaad afwezig is.
-			if (ref_ok == true) {
-		/* convert packet timestamp to UTC absolute time */
-		j = lgw_cnt2utc(local_ref, p->count_us, &pkt_utc_time);
-		if (j == LGW_GPS_SUCCESS) {
-		    /* split the UNIX timestamp to its calendar components */
-		    x = gmtime(&(pkt_utc_time.tv_sec));
-		    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"time\":\"%04i-%02i-%02iT%02i:%02i:%02i.%06liZ\"", (x->tm_year)+1900, (x->tm_mon)+1, x->tm_mday, x->tm_hour, x->tm_min, x->tm_sec, (pkt_utc_time.tv_nsec)/1000); /* ISO 8601 format */
-		    if (j > 0) {
-			buff_index += j;
-		    } else {
-			MSG("ERROR: [up] failed to add field \"time\" to the transmission buffer.\n");
-			continue; /* skip that packet*/
-			//exit(EXIT_FAILURE);
-		    }
-		}
-	    }
+            /* Packet RX time (GPS based), 37 useful chars */
+            //TODO: Ga na of dit packet zonder gps inderdaad afwezig is.
+                        if (ref_ok == true) {
+                /* convert packet timestamp to UTC absolute time */
+                j = lgw_cnt2utc(local_ref, p->count_us, &pkt_utc_time);
+                if (j == LGW_GPS_SUCCESS) {
+                    /* split the UNIX timestamp to its calendar components */
+                    x = gmtime(&(pkt_utc_time.tv_sec));
+                    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"time\":\"%04i-%02i-%02iT%02i:%02i:%02i.%06liZ\"", (x->tm_year)+1900, (x->tm_mon)+1, x->tm_mday, x->tm_hour, x->tm_min, x->tm_sec, (pkt_utc_time.tv_nsec)/1000); /* ISO 8601 format */
+                    if (j > 0) {
+                        buff_index += j;
+                    } else {
+                        MSG("ERROR: [up] failed to add field \"time\" to the transmission buffer.\n");
+                        continue; /* skip that packet*/
+                        //exit(EXIT_FAILURE);
+                    }
+                }
+            }
 
-	    /* Packet concentrator channel, RF chain & RX frequency, 34-36 useful chars */
-	    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"chan\":%1u,\"rfch\":%1u,\"freq\":%.6lf", p->if_chain, p->rf_chain, ((double)p->freq_hz / 1e6));
-	    if (j > 0) {
-		buff_index += j;
-	    } else {
-		MSG("ERROR: [up] failed to add fields \"chan\", \"rfch\", \"freq\" to the transmission buffer.\n");
-		exit(EXIT_FAILURE);
-	    }
+            /* Packet concentrator channel, RF chain & RX frequency, 34-36 useful chars */
+            j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"chan\":%1u,\"rfch\":%1u,\"freq\":%.6lf", p->if_chain, p->rf_chain, ((double)p->freq_hz / 1e6));
+            if (j > 0) {
+                buff_index += j;
+            } else {
+                MSG("ERROR: [up] failed to add fields \"chan\", \"rfch\", \"freq\" to the transmission buffer.\n");
+                exit(EXIT_FAILURE);
+            }
 
-	    /* Packet status, 9-10 useful chars */
-	    switch (p->status) {
-		case STAT_CRC_OK:
-		    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":1", 9);
-		    buff_index += 9;
-		    break;
-		case STAT_CRC_BAD:
-		    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":-1", 10);
-		    buff_index += 10;
-		    break;
-		case STAT_NO_CRC:
-		    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":0", 9);
-		    buff_index += 9;
-		    break;
-		default:
-		    MSG("ERROR: [up] received packet with unknown status\n");
-		    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":?", 9);
-		    buff_index += 9;
-		    continue; /* skip that packet*/
-		    //exit(EXIT_FAILURE);
-	    }
+            /* Packet status, 9-10 useful chars */
+            switch (p->status) {
+                case STAT_CRC_OK:
+                    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":1", 9);
+                    buff_index += 9;
+                    break;
+                case STAT_CRC_BAD:
+                    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":-1", 10);
+                    buff_index += 10;
+                    break;
+                case STAT_NO_CRC:
+                    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":0", 9);
+                    buff_index += 9;
+                    break;
+                default:
+                    MSG("ERROR: [up] received packet with unknown status\n");
+                    memcpy((void *)(buff_up + buff_index), (void *)",\"stat\":?", 9);
+                    buff_index += 9;
+                    continue; /* skip that packet*/
+                    //exit(EXIT_FAILURE);
+            }
 
-	    /* Packet modulation, 13-14 useful chars */
-	    if (p->modulation == MOD_LORA) {
-		memcpy((void *)(buff_up + buff_index), (void *)",\"modu\":\"LORA\"", 14);
-		buff_index += 14;
+            /* Packet modulation, 13-14 useful chars */
+            if (p->modulation == MOD_LORA) {
+                memcpy((void *)(buff_up + buff_index), (void *)",\"modu\":\"LORA\"", 14);
+                buff_index += 14;
 
-		/* Lora datarate & bandwidth, 16-19 useful chars */
-		switch (p->datarate) {
-		    case DR_LORA_SF7:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF7", 12);
-			buff_index += 12;
-			break;
-		    case DR_LORA_SF8:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF8", 12);
-			buff_index += 12;
-			break;
-		    case DR_LORA_SF9:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF9", 12);
-			buff_index += 12;
-			break;
-		    case DR_LORA_SF10:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF10", 13);
-			buff_index += 13;
-			break;
-		    case DR_LORA_SF11:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF11", 13);
-			buff_index += 13;
-			break;
-		    case DR_LORA_SF12:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF12", 13);
-			buff_index += 13;
-			break;
-		    default:
-			MSG("ERROR: [up] lora packet with unknown datarate\n");
-			memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF?", 12);
-			buff_index += 12;
-			continue; /* skip that packet*/
-			//exit(EXIT_FAILURE);
-		}
-		switch (p->bandwidth) {
-		    case BW_125KHZ:
-			memcpy((void *)(buff_up + buff_index), (void *)"BW125\"", 6);
-			buff_index += 6;
-			break;
-		    case BW_250KHZ:
-			memcpy((void *)(buff_up + buff_index), (void *)"BW250\"", 6);
-			buff_index += 6;
-			break;
-		    case BW_500KHZ:
-			memcpy((void *)(buff_up + buff_index), (void *)"BW500\"", 6);
-			buff_index += 6;
-			break;
-		    default:
-			MSG("ERROR: [up] lora packet with unknown bandwidth\n");
-			memcpy((void *)(buff_up + buff_index), (void *)"BW?\"", 4);
-			buff_index += 4;
-			continue; /* skip that packet*/
-			//exit(EXIT_FAILURE);
-		}
+                /* Lora datarate & bandwidth, 16-19 useful chars */
+                switch (p->datarate) {
+                    case DR_LORA_SF7:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF7", 12);
+                        buff_index += 12;
+                        break;
+                    case DR_LORA_SF8:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF8", 12);
+                        buff_index += 12;
+                        break;
+                    case DR_LORA_SF9:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF9", 12);
+                        buff_index += 12;
+                        break;
+                    case DR_LORA_SF10:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF10", 13);
+                        buff_index += 13;
+                        break;
+                    case DR_LORA_SF11:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF11", 13);
+                        buff_index += 13;
+                        break;
+                    case DR_LORA_SF12:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF12", 13);
+                        buff_index += 13;
+                        break;
+                    default:
+                        MSG("ERROR: [up] lora packet with unknown datarate\n");
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF?", 12);
+                        buff_index += 12;
+                        continue; /* skip that packet*/
+                        //exit(EXIT_FAILURE);
+                }
+                switch (p->bandwidth) {
+                    case BW_125KHZ:
+                        memcpy((void *)(buff_up + buff_index), (void *)"BW125\"", 6);
+                        buff_index += 6;
+                        break;
+                    case BW_250KHZ:
+                        memcpy((void *)(buff_up + buff_index), (void *)"BW250\"", 6);
+                        buff_index += 6;
+                        break;
+                    case BW_500KHZ:
+                        memcpy((void *)(buff_up + buff_index), (void *)"BW500\"", 6);
+                        buff_index += 6;
+                        break;
+                    default:
+                        MSG("ERROR: [up] lora packet with unknown bandwidth\n");
+                        memcpy((void *)(buff_up + buff_index), (void *)"BW?\"", 4);
+                        buff_index += 4;
+                        continue; /* skip that packet*/
+                        //exit(EXIT_FAILURE);
+                }
 
-		/* Packet ECC coding rate, 11-13 useful chars */
-		switch (p->coderate) {
-		    case CR_LORA_4_5:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/5\"", 13);
-			buff_index += 13;
-			break;
-		    case CR_LORA_4_6:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/6\"", 13);
-			buff_index += 13;
-			break;
-		    case CR_LORA_4_7:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/7\"", 13);
-			buff_index += 13;
-			break;
-		    case CR_LORA_4_8:
-			memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/8\"", 13);
-			buff_index += 13;
-			break;
-		    case 0: /* treat the CR0 case (mostly false sync) */
-			memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"OFF\"", 13);
-			buff_index += 13;
-			break;
-		    default:
-			MSG("ERROR: [up] lora packet with unknown coderate\n");
-			memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"?\"", 11);
-			buff_index += 11;
-			continue; /* skip that packet*/
-			//exit(EXIT_FAILURE);
-		}
+                /* Packet ECC coding rate, 11-13 useful chars */
+                switch (p->coderate) {
+                    case CR_LORA_4_5:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/5\"", 13);
+                        buff_index += 13;
+                        break;
+                    case CR_LORA_4_6:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/6\"", 13);
+                        buff_index += 13;
+                        break;
+                    case CR_LORA_4_7:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/7\"", 13);
+                        buff_index += 13;
+                        break;
+                    case CR_LORA_4_8:
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"4/8\"", 13);
+                        buff_index += 13;
+                        break;
+                    case 0: /* treat the CR0 case (mostly false sync) */
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"OFF\"", 13);
+                        buff_index += 13;
+                        break;
+                    default:
+                        MSG("ERROR: [up] lora packet with unknown coderate\n");
+                        memcpy((void *)(buff_up + buff_index), (void *)",\"codr\":\"?\"", 11);
+                        buff_index += 11;
+                        continue; /* skip that packet*/
+                        //exit(EXIT_FAILURE);
+                }
 
-		/* Lora SNR, 11-13 useful chars */
-		j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"lsnr\":%.1f", p->snr);
-		if (j > 0) {
-		    buff_index += j;
-		} else {
-		    MSG("ERROR: [up] failed to add field \"lsnr\" to the transmission buffer.\n");
-		    continue; /* skip that packet*/
-		    //exit(EXIT_FAILURE);
-		}
-	    } else if (p->modulation == MOD_FSK) {
-		memcpy((void *)(buff_up + buff_index), (void *)",\"modu\":\"FSK\"", 13);
-		buff_index += 13;
+                /* Lora SNR, 11-13 useful chars */
+                j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"lsnr\":%.1f", p->snr);
+                if (j > 0) {
+                    buff_index += j;
+                } else {
+                    MSG("ERROR: [up] failed to add field \"lsnr\" to the transmission buffer.\n");
+                    continue; /* skip that packet*/
+                    //exit(EXIT_FAILURE);
+                }
+            } else if (p->modulation == MOD_FSK) {
+                memcpy((void *)(buff_up + buff_index), (void *)",\"modu\":\"FSK\"", 13);
+                buff_index += 13;
 
-		/* FSK datarate, 11-14 useful chars */
-		j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"datr\":%u", p->datarate);
-		if (j > 0) {
-		    buff_index += j;
-		} else {
-		    MSG("ERROR: [up] failed to add field \"datr\" to the transmission buffer.\n");
-		    continue; /* skip that packet*/
-		    //exit(EXIT_FAILURE);
-		}
-	    } else {
-		MSG("ERROR: [up] received packet with unknown modulation\n");
-		continue; /* skip that packet*/
-		//exit(EXIT_FAILURE);
-	    }
+                /* FSK datarate, 11-14 useful chars */
+                j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"datr\":%u", p->datarate);
+                if (j > 0) {
+                    buff_index += j;
+                } else {
+                    MSG("ERROR: [up] failed to add field \"datr\" to the transmission buffer.\n");
+                    continue; /* skip that packet*/
+                    //exit(EXIT_FAILURE);
+                }
+            } else {
+                MSG("ERROR: [up] received packet with unknown modulation\n");
+                continue; /* skip that packet*/
+                //exit(EXIT_FAILURE);
+            }
 
-	    /* Packet RSSI, payload size, 18-23 useful chars */
-	    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"rssi\":%.0f,\"size\":%u", p->rssi, p->size);
-	    if (j > 0) {
-		buff_index += j;
-	    } else {
-		MSG("ERROR: [up] failed to add field \"size\" to the transmission buffer.\n");
-		continue; /* skip that packet*/
-		//exit(EXIT_FAILURE);
-	    }
+            /* Packet RSSI, payload size, 18-23 useful chars */
+            j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"rssi\":%.0f,\"size\":%u", p->rssi, p->size);
+            if (j > 0) {
+                buff_index += j;
+            } else {
+                MSG("ERROR: [up] failed to add field \"size\" to the transmission buffer.\n");
+                continue; /* skip that packet*/
+                //exit(EXIT_FAILURE);
+            }
 
-	    /* Packet base64-encoded payload, 14-350 useful chars */
-	    memcpy((void *)(buff_up + buff_index), (void *)",\"data\":\"", 9);
-	    buff_index += 9;
-	    j = bin_to_b64(p->payload, p->size, (char *)(buff_up + buff_index), 341); /* 255 bytes = 340 chars in b64 + null char */
-	    if (j>=0) {
-		buff_index += j;
-	    } else {
-		MSG("ERROR: [up] failed to add field \"data\" to the transmission buffer.\n");
-		continue; /* skip that packet*/
-		//exit(EXIT_FAILURE);
-	    }
-	    buff_up[buff_index] = '"';
-	    ++buff_index;
+            /* Packet base64-encoded payload, 14-350 useful chars */
+            memcpy((void *)(buff_up + buff_index), (void *)",\"data\":\"", 9);
+            buff_index += 9;
+            j = bin_to_b64(p->payload, p->size, (char *)(buff_up + buff_index), 341); /* 255 bytes = 340 chars in b64 + null char */
+            if (j>=0) {
+                buff_index += j;
+            } else {
+                MSG("ERROR: [up] failed to add field \"data\" to the transmission buffer.\n");
+                continue; /* skip that packet*/
+                //exit(EXIT_FAILURE);
+            }
+            buff_up[buff_index] = '"';
+            ++buff_index;
 
-	    /* End of packet serialization */
-	    buff_up[buff_index] = '}';
-	    ++buff_index;
-	    ++pkt_in_dgram;
-	}
+            /* End of packet serialization */
+            buff_up[buff_index] = '}';
+            ++buff_index;
+            ++pkt_in_dgram;
+        }
 
-	/* restart fetch sequence without sending empty JSON if all packets have been filtered out */
-	if (pkt_in_dgram == 0) {
-	    if (entry->status != NULL) {
-		/* need to clean up the beginning of the payload */
-		buff_index -= 8; /* removes "rxpk":[ */
-	    } else {
-		/* all packet have been filtered out and no report, restart loop */
-		continue;
-	    }
-	} else {
-	    /* end of packet array */
-	    buff_up[buff_index] = ']';
-	    ++buff_index;
-	    /* add separator if needed */
-	    if (entry->status != NULL) {
-		buff_up[buff_index] = ',';
-		++buff_index;
-	    }
-	}
+        /* restart fetch sequence without sending empty JSON if all packets have been filtered out */
+        if (pkt_in_dgram == 0) {
+            if (entry->status != NULL) {
+                /* need to clean up the beginning of the payload */
+                buff_index -= 8; /* removes "rxpk":[ */
+            } else {
+                /* all packet have been filtered out and no report, restart loop */
+                continue;
+            }
+        } else {
+            /* end of packet array */
+            buff_up[buff_index] = ']';
+            ++buff_index;
+            /* add separator if needed */
+            if (entry->status != NULL) {
+                buff_up[buff_index] = ',';
+                ++buff_index;
+            }
+        }
 
-	/* add status report if a new one is available */
-	if (entry->status != NULL) {
-	    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, "%s", &entry->status[1])-1;
-	    free(entry->status);
-	    if (j > 0) {
-		buff_index += j;
-	    } else {
-		/* If the status does not fit the buffer (this should NOT happen btw), just delay it for the next
-		 * round. It is certainly not a reason to drop packets. Remove the last separator and give a warning. */
-		--buff_index;
-		MSG("WARNING: [up] failed to add field the status report to the transmission buffer.\n");
-	    }
-	}
+        /* add status report if a new one is available */
+        if (entry->status != NULL) {
+            j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, "%s", &entry->status[1])-1;
+            free(entry->status);
+            if (j > 0) {
+                buff_index += j;
+            } else {
+                /* If the status does not fit the buffer (this should NOT happen btw), just delay it for the next
+                 * round. It is certainly not a reason to drop packets. Remove the last separator and give a warning. */
+                --buff_index;
+                MSG("WARNING: [up] failed to add field the status report to the transmission buffer.\n");
+            }
+        }
 
-	/* end of JSON datagram payload */
-	buff_up[buff_index] = '}';
-	++buff_index;
-	buff_up[buff_index] = 0; /* add string terminator, for safety */
+        /* end of JSON datagram payload */
+        buff_up[buff_index] = '}';
+        ++buff_index;
+        buff_up[buff_index] = 0; /* add string terminator, for safety */
 
-	MSG_DEBUG(DEBUG_LOG,"\nJSON up: %s\n", (char *)(buff_up + 12)); /* DEBUG: display JSON payload */
+        MSG_DEBUG(DEBUG_LOG,"\nJSON up: %s\n", (char *)(buff_up + 12)); /* DEBUG: display JSON payload */
 
-	/* send datagram to servers sequentially */
-	// TODO make this parallel.
-	    send(servers[idx].sock_up, (void *)buff_up, buff_index, 0);
-	    clock_gettime(CLOCK_MONOTONIC, &send_time);
-	    pthread_mutex_lock(&mx_meas_up);
-	    meas_up_dgram_sent[idx] += 1;
-	    meas_up_network_byte += buff_index;
-	    pthread_mutex_unlock(&mx_meas_up);
+        /* send datagram to servers sequentially */
+        // TODO make this parallel.
+            send(servers[idx].sock_up, (void *)buff_up, buff_index, 0);
+            clock_gettime(CLOCK_MONOTONIC, &send_time);
+            pthread_mutex_lock(&mx_meas_up);
+            meas_up_dgram_sent[idx] += 1;
+            meas_up_network_byte += buff_index;
+            pthread_mutex_unlock(&mx_meas_up);
 
-	    /* wait for acknowledge (in 2 times, to catch extra packets) */
+            /* wait for acknowledge (in 2 times, to catch extra packets) */
         clock_gettime(CLOCK_MONOTONIC, &recv_time);
-	    for (i=0; i<5; ++i) {
+            for (i=0; i<5; ++i) {
             LOGGER("WARNING: [up] RX try=%i delay=%ims\n", i, (int)(1000 * difftimespec(recv_time, send_time)));
             j = recv(servers[idx].sock_up, (void *)buff_ack, sizeof buff_ack, 0);
             clock_gettime(CLOCK_MONOTONIC, &recv_time);
@@ -1528,7 +1566,7 @@ void semtech_upstream(void *pic) {
                 pthread_mutex_unlock(&mx_meas_up);
                 break;
             }
-	    }
+            }
         // free queue entry
         free(entry);
     }
