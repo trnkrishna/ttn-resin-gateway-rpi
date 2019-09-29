@@ -1607,48 +1607,48 @@ void print_tx_status(uint8_t tx_status) {
     }
 }
 
-void print_tx_packet(struct lgw_pkt_tx_s pkt) {
-/**
-@struct lgw_pkt_tx_s
-@brief Structure containing the configuration of a packet to send and a pointer to the payload
-*/
-// struct lgw_pkt_tx_s {
-//     uint32_t    freq_hz;        /*!> center frequency of TX */
-//     uint8_t     tx_mode;        /*!> select on what event/time the TX is triggered */
-//     uint32_t    count_us;       /*!> timestamp or delay in microseconds for TX trigger */
-//     uint8_t     rf_chain;       /*!> through which RF chain will the packet be sent */
-//     int8_t      rf_power;       /*!> TX power, in dBm */
-//     uint8_t     modulation;     /*!> modulation to use for the packet */
-//     uint8_t     bandwidth;      /*!> modulation bandwidth (LoRa only) */
-//     uint32_t    datarate;       /*!> TX datarate (baudrate for FSK, SF for LoRa) */
-//     uint8_t     coderate;       /*!> error-correcting code of the packet (LoRa only) */
-//     bool        invert_pol;     /*!> invert signal polarity, for orthogonal downlinks (LoRa only) */
-//     uint8_t     f_dev;          /*!> frequency deviation, in kHz (FSK only) */
-//     uint16_t    preamble;       /*!> set the preamble length, 0 for default */
-//     bool        no_crc;         /*!> if true, do not send a CRC in the packet */
-//     bool        no_header;      /*!> if true, enable implicit header mode (LoRa), fixed length (FSK) */
-//     uint16_t    size;           /*!> payload size in bytes */
-//     uint8_t     payload[256];   /*!> buffer containing the payload */
-// };
-        LOGGER("=== LoRa TX Packet ===\n");
-        LOGGER("freq_hz: %u\n", pkt.freq_hz);
-        LOGGER("tx_mode: %u\n", pkt.tx_mode);
-        LOGGER("count_us: %u\n", pkt.count_us);
-        LOGGER("rf_chain: %u\n", pkt.rf_chain);
-        LOGGER("rf_power: %d\n", pkt.rf_power);
-        LOGGER("modulation: %u\n", pkt.modulation);
-        LOGGER("bandwidth: %u\n", pkt.bandwidth);
-        LOGGER("datarate: %u\n", pkt.datarate);
-        LOGGER("coderate: %u\n", pkt.coderate);
-        LOGGER("invert_pol: %d\n", pkt.invert_pol);
-        LOGGER("f_dev: %u\n", pkt.f_dev);
-        LOGGER("preamble: %u\n", pkt.preamble);
-        LOGGER("no_crc: %d\n", pkt.no_crc);
-        LOGGER("no_header: %d\n", pkt.no_header);
-        LOGGER("size: %u\n", pkt.size);
-        // LOGGER("payload: %d\n", pkt.payload);
-        LOGGER("======================\n");
-}
+// void print_tx_packet(struct lgw_pkt_tx_s pkt) {
+// /**
+// @struct lgw_pkt_tx_s
+// @brief Structure containing the configuration of a packet to send and a pointer to the payload
+// */
+// // struct lgw_pkt_tx_s {
+// //     uint32_t    freq_hz;        /*!> center frequency of TX */
+// //     uint8_t     tx_mode;        /*!> select on what event/time the TX is triggered */
+// //     uint32_t    count_us;       /*!> timestamp or delay in microseconds for TX trigger */
+// //     uint8_t     rf_chain;       /*!> through which RF chain will the packet be sent */
+// //     int8_t      rf_power;       /*!> TX power, in dBm */
+// //     uint8_t     modulation;     /*!> modulation to use for the packet */
+// //     uint8_t     bandwidth;      /*!> modulation bandwidth (LoRa only) */
+// //     uint32_t    datarate;       /*!> TX datarate (baudrate for FSK, SF for LoRa) */
+// //     uint8_t     coderate;       /*!> error-correcting code of the packet (LoRa only) */
+// //     bool        invert_pol;     /*!> invert signal polarity, for orthogonal downlinks (LoRa only) */
+// //     uint8_t     f_dev;          /*!> frequency deviation, in kHz (FSK only) */
+// //     uint16_t    preamble;       /*!> set the preamble length, 0 for default */
+// //     bool        no_crc;         /*!> if true, do not send a CRC in the packet */
+// //     bool        no_header;      /*!> if true, enable implicit header mode (LoRa), fixed length (FSK) */
+// //     uint16_t    size;           /*!> payload size in bytes */
+// //     uint8_t     payload[256];   /*!> buffer containing the payload */
+// // };
+//         LOGGER("=== LoRa TX Packet ===\n");
+//         LOGGER("freq_hz: %u\n", pkt.freq_hz);
+//         LOGGER("tx_mode: %u\n", pkt.tx_mode);
+//         LOGGER("count_us: %u\n", pkt.count_us);
+//         LOGGER("rf_chain: %u\n", pkt.rf_chain);
+//         LOGGER("rf_power: %d\n", pkt.rf_power);
+//         LOGGER("modulation: %u\n", pkt.modulation);
+//         LOGGER("bandwidth: %u\n", pkt.bandwidth);
+//         LOGGER("datarate: %u\n", pkt.datarate);
+//         LOGGER("coderate: %u\n", pkt.coderate);
+//         LOGGER("invert_pol: %d\n", pkt.invert_pol);
+//         LOGGER("f_dev: %u\n", pkt.f_dev);
+//         LOGGER("preamble: %u\n", pkt.preamble);
+//         LOGGER("no_crc: %d\n", pkt.no_crc);
+//         LOGGER("no_header: %d\n", pkt.no_header);
+//         LOGGER("size: %u\n", pkt.size);
+//         // LOGGER("payload: %d\n", pkt.payload);
+//         LOGGER("======================\n");
+// }
 
 /* -------------------------------------------------------------------------- */
 /* --- THREAD 3: CHECKING PACKETS TO BE SENT FROM JIT QUEUE AND SEND THEM --- */
