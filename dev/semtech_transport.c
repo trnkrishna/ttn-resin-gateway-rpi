@@ -736,8 +736,8 @@ void semtech_thread_down(void* pic) {
             /* initialize TX struct and try to parse JSON */
             memset(&txpkt, 0, sizeof txpkt);
 
-            LOGGER("=== After memset(0) ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After memset(0) ===\n");
+            // print_tx_packet(txpkt);
 
             root_val = json_parse_string_with_comments((const char *)(buff_down + 4)); /* JSON offset */
             if (root_val == NULL) {
@@ -763,8 +763,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== Before count_us ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== Before count_us ===\n");
+            // print_tx_packet(txpkt);
 
             /* Parse "immediate" tag, or target timestamp, or UTC time to be converted by GPS (mandatory) */
             i = json_object_get_boolean(txpk_obj,"imme"); /* can be 1 if true, 0 if false, or -1 if not a JSON boolean */
@@ -859,8 +859,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After count_us ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After count_us ===\n");
+            // print_tx_packet(txpkt);
 
             /* Parse "No CRC" flag (optional field) */
             val = json_object_get_value(txpk_obj,"ncrc");
@@ -869,8 +869,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After ncrc ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After ncrc ===\n");
+            // print_tx_packet(txpkt);
 
             /* parse target frequency (mandatory) */
             val = json_object_get_value(txpk_obj,"freq");
@@ -886,8 +886,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After freq ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After freq ===\n");
+            // print_tx_packet(txpkt);
 
             /* parse RF chain used for TX (mandatory) */
             val = json_object_get_value(txpk_obj,"rfch");
@@ -903,8 +903,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After rf_chain ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After rf_chain ===\n");
+            // print_tx_packet(txpkt);
                 
             /* parse TX power (optional field) */
             val = json_object_get_value(txpk_obj,"powe");
@@ -917,8 +917,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After power ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After power ===\n");
+            // print_tx_packet(txpkt);
 
             /* Parse modulation (mandatory) */
             str = json_object_get_string(txpk_obj, "modu");
