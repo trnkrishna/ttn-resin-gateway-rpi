@@ -1099,8 +1099,8 @@ void semtech_thread_down(void* pic) {
             txpkt.size = (uint16_t)json_value_get_number(val);
 
 
-            LOGGER("=== After size ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After size ===\n");
+            // print_tx_packet(txpkt);
 
             j = snprintf((json + buff_index), json_buffer_length-buff_index, ",\"length\":%d", txpkt.size);
             if (j > 0) {
@@ -1108,8 +1108,8 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After length ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After length ===\n");
+            // print_tx_packet(txpkt);
 
             /* Parse payload data (mandatory) */
             str = json_object_get_string(txpk_obj, "data");
@@ -1120,16 +1120,16 @@ void semtech_thread_down(void* pic) {
             }
 
 
-            LOGGER("=== After data ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== After data ===\n");
+            // print_tx_packet(txpkt);
 
             i = b64_to_bin(str, strlen(str), txpkt.payload, sizeof txpkt.payload);
             if (i != txpkt.size) {
                 LOGGER("WARNING: [down] mismatch between .size and .data size once converter to binary\n");
             }
 
-            LOGGER("=== LoRa TX Packet, semtech transport, before jit add ===\n");
-            print_tx_packet(txpkt);
+            // LOGGER("=== LoRa TX Packet, semtech transport, before jit add ===\n");
+            // print_tx_packet(txpkt);
 
             /* free the JSON parse tree from memory */
             json_value_free(root_val);
@@ -1192,6 +1192,9 @@ void semtech_thread_down(void* pic) {
                 buff_index += j;
             }
             ++buff_index;
+
+            LOGGER("JSON:\n%s", json);
+
             /* end of JSON datagram payload */
             json[buff_index] = 0; /* add string terminator, for safety */
             transport_send_downtraf(json, ++buff_index);
