@@ -395,6 +395,48 @@ static int send_tx_ack(int ic, uint8_t token_h, uint8_t token_l, enum jit_error_
     return send(servers[ic].sock_down, (void *)buff_ack, buff_index, 0);
 }
 
+void print_tx_packet(struct lgw_pkt_tx_s pkt) {
+/**
+@struct lgw_pkt_tx_s
+@brief Structure containing the configuration of a packet to send and a pointer to the payload
+*/
+// struct lgw_pkt_tx_s {
+//     uint32_t    freq_hz;        /*!> center frequency of TX */
+//     uint8_t     tx_mode;        /*!> select on what event/time the TX is triggered */
+//     uint32_t    count_us;       /*!> timestamp or delay in microseconds for TX trigger */
+//     uint8_t     rf_chain;       /*!> through which RF chain will the packet be sent */
+//     int8_t      rf_power;       /*!> TX power, in dBm */
+//     uint8_t     modulation;     /*!> modulation to use for the packet */
+//     uint8_t     bandwidth;      /*!> modulation bandwidth (LoRa only) */
+//     uint32_t    datarate;       /*!> TX datarate (baudrate for FSK, SF for LoRa) */
+//     uint8_t     coderate;       /*!> error-correcting code of the packet (LoRa only) */
+//     bool        invert_pol;     /*!> invert signal polarity, for orthogonal downlinks (LoRa only) */
+//     uint8_t     f_dev;          /*!> frequency deviation, in kHz (FSK only) */
+//     uint16_t    preamble;       /*!> set the preamble length, 0 for default */
+//     bool        no_crc;         /*!> if true, do not send a CRC in the packet */
+//     bool        no_header;      /*!> if true, enable implicit header mode (LoRa), fixed length (FSK) */
+//     uint16_t    size;           /*!> payload size in bytes */
+//     uint8_t     payload[256];   /*!> buffer containing the payload */
+// };
+        LOGGER("freq_hz: %u\n", pkt.freq_hz);
+        LOGGER("tx_mode: %u\n", pkt.tx_mode);
+        LOGGER("count_us: %u\n", pkt.count_us);
+        LOGGER("rf_chain: %u\n", pkt.rf_chain);
+        LOGGER("rf_power: %d\n", pkt.rf_power);
+        LOGGER("modulation: %u\n", pkt.modulation);
+        LOGGER("bandwidth: %u\n", pkt.bandwidth);
+        LOGGER("datarate: %u\n", pkt.datarate);
+        LOGGER("coderate: %u\n", pkt.coderate);
+        LOGGER("invert_pol: %d\n", pkt.invert_pol);
+        LOGGER("f_dev: %u\n", pkt.f_dev);
+        LOGGER("preamble: %u\n", pkt.preamble);
+        LOGGER("no_crc: %d\n", pkt.no_crc);
+        LOGGER("no_header: %d\n", pkt.no_header);
+        LOGGER("size: %u\n", pkt.size);
+        // LOGGER("payload: %d\n", pkt.payload);
+        LOGGER("======================\n");
+}
+
 void semtech_thread_down(void* pic) {
     int i; /* loop variables */
         int ic = (int) (long) pic;
@@ -694,24 +736,8 @@ void semtech_thread_down(void* pic) {
             /* initialize TX struct and try to parse JSON */
             memset(&txpkt, 0, sizeof txpkt);
 
-            LOGGER("=== LoRa TX Packet, semtech transport, after txpkt cleared ===\n");
-            LOGGER("freq_hz: %u\n", txpkt.freq_hz);
-            LOGGER("tx_mode: %u\n", txpkt.tx_mode);
-            LOGGER("count_us: %u\n", txpkt.count_us);
-            LOGGER("rf_chain: %u\n", txpkt.rf_chain);
-            LOGGER("rf_power: %d\n", txpkt.rf_power);
-            LOGGER("modulation: %u\n", txpkt.modulation);
-            LOGGER("bandwidth: %u\n", txpkt.bandwidth);
-            LOGGER("datarate: %u\n", txpkt.datarate);
-            LOGGER("coderate: %u\n", txpkt.coderate);
-            LOGGER("invert_pol: %d\n", txpkt.invert_pol);
-            LOGGER("f_dev: %u\n", txpkt.f_dev);
-            LOGGER("preamble: %u\n", txpkt.preamble);
-            LOGGER("no_crc: %d\n", txpkt.no_crc);
-            LOGGER("no_header: %d\n", txpkt.no_header);
-            LOGGER("size: %u\n", txpkt.size);
-            // LOGGER("payload: %d\n", pkt.payload);
-            LOGGER("======================\n");
+            LOGGER("=== After memset(0) ===\n");
+            print_tx_packet(txpkt);
 
             root_val = json_parse_string_with_comments((const char *)(buff_down + 4)); /* JSON offset */
             if (root_val == NULL) {
@@ -735,6 +761,10 @@ void semtech_thread_down(void* pic) {
             if (j > 0) {
                 buff_index += j;
             }
+
+
+            LOGGER("=== Before count_us ===\n");
+            print_tx_packet(txpkt);
 
             /* Parse "immediate" tag, or target timestamp, or UTC time to be converted by GPS (mandatory) */
             i = json_object_get_boolean(txpk_obj,"imme"); /* can be 1 if true, 0 if false, or -1 if not a JSON boolean */
@@ -764,7 +794,7 @@ void semtech_thread_down(void* pic) {
                         json_value_free(root_val);
                         continue;
                     }
-                                        if (gps_active == true) {
+                    if (gps_active == true) {
                         pthread_mutex_lock(&mx_timeref);
                         if (gps_ref_valid == true) {
                             local_ref = time_reference_gps;
@@ -828,11 +858,19 @@ void semtech_thread_down(void* pic) {
                 }
             }
 
+
+            LOGGER("=== After count_us ===\n");
+            print_tx_packet(txpkt);
+
             /* Parse "No CRC" flag (optional field) */
             val = json_object_get_value(txpk_obj,"ncrc");
             if (val != NULL) {
                 txpkt.no_crc = (bool)json_value_get_boolean(val);
             }
+
+
+            LOGGER("=== After ncrc ===\n");
+            print_tx_packet(txpkt);
 
             /* parse target frequency (mandatory) */
             val = json_object_get_value(txpk_obj,"freq");
@@ -847,6 +885,10 @@ void semtech_thread_down(void* pic) {
                 buff_index += j;
             }
 
+
+            LOGGER("=== After freq ===\n");
+            print_tx_packet(txpkt);
+
             /* parse RF chain used for TX (mandatory) */
             val = json_object_get_value(txpk_obj,"rfch");
             if (val == NULL) {
@@ -859,6 +901,10 @@ void semtech_thread_down(void* pic) {
             if (j > 0) {
                 buff_index += j;
             }
+
+
+            LOGGER("=== After rf_chain ===\n");
+            print_tx_packet(txpkt);
                 
             /* parse TX power (optional field) */
             val = json_object_get_value(txpk_obj,"powe");
@@ -870,6 +916,10 @@ void semtech_thread_down(void* pic) {
                 }
             }
 
+
+            LOGGER("=== After power ===\n");
+            print_tx_packet(txpkt);
+
             /* Parse modulation (mandatory) */
             str = json_object_get_string(txpk_obj, "modu");
             if (str == NULL) {
@@ -877,6 +927,11 @@ void semtech_thread_down(void* pic) {
                 json_value_free(root_val);
                 continue;
             }
+
+
+            LOGGER("=== After modu ===\n");
+            print_tx_packet(txpkt);
+
             if (strcmp(str, "LORA") == 0) {
                 /* Lora modulation */
                 txpkt.modulation = MOD_LORA;
@@ -888,6 +943,11 @@ void semtech_thread_down(void* pic) {
                     json_value_free(root_val);
                     continue;
                 }
+
+
+            LOGGER("=== After datr ===\n");
+            print_tx_packet(txpkt);
+
                 j = snprintf((json + buff_index), 200-buff_index, ",\"modulation\":\"LORA\",\"data_rate\":\"%s\"",str);
                 if (j > 0) {
                     buff_index += j;
@@ -920,6 +980,10 @@ void semtech_thread_down(void* pic) {
                         continue;
                 }
 
+
+            LOGGER("=== After datarate ===\n");
+            print_tx_packet(txpkt);
+
                 /* Parse ECC coding rate (optional field) */
                 str = json_object_get_string(txpk_obj, "codr");
                 if (str == NULL) {
@@ -927,6 +991,11 @@ void semtech_thread_down(void* pic) {
                     json_value_free(root_val);
                     continue;
                 }
+
+
+            LOGGER("=== After codr ===\n");
+            print_tx_packet(txpkt);
+
                 j = snprintf((json + buff_index), 200-buff_index, "\"coding_rate\":\"%s\"", str);
                 if (j > 0) {
                     buff_index += j;
@@ -943,11 +1012,19 @@ void semtech_thread_down(void* pic) {
                     continue;
                 }
 
+
+            LOGGER("=== After coderate ===\n");
+            print_tx_packet(txpkt);
+
                 /* Parse signal polarity switch (optional field) */
                 val = json_object_get_value(txpk_obj,"ipol");
                 if (val != NULL) {
                     txpkt.invert_pol = (bool)json_value_get_boolean(val);
                 }
+
+
+            LOGGER("=== After ipol ===\n");
+            print_tx_packet(txpkt);
 
                 /* parse Lora preamble length (optional field, optimum min value enforced) */
                 val = json_object_get_value(txpk_obj,"prea");
@@ -961,6 +1038,10 @@ void semtech_thread_down(void* pic) {
                 } else {
                     txpkt.preamble = (uint16_t)STD_LORA_PREAMB;
                 }
+
+
+            LOGGER("=== After prea ===\n");
+            print_tx_packet(txpkt);
 
             } else if (strcmp(str, "FSK") == 0) {
                 /* FSK modulation */
@@ -1003,6 +1084,10 @@ void semtech_thread_down(void* pic) {
                 continue;
             }
 
+
+            LOGGER("=== After modulation block ===\n");
+            print_tx_packet(txpkt);
+
             /* Parse payload length (mandatory) */
             val = json_object_get_value(txpk_obj,"size");
             if (val == NULL) {
@@ -1012,10 +1097,18 @@ void semtech_thread_down(void* pic) {
             }
             txpkt.size = (uint16_t)json_value_get_number(val);
 
+
+            LOGGER("=== After size ===\n");
+            print_tx_packet(txpkt);
+
             j = snprintf((json + buff_index), 200-buff_index, ",\"length\":%d", txpkt.size);
             if (j > 0) {
                 buff_index += j;
             }
+
+
+            LOGGER("=== After length ===\n");
+            print_tx_packet(txpkt);
 
             /* Parse payload data (mandatory) */
             str = json_object_get_string(txpk_obj, "data");
@@ -1024,29 +1117,18 @@ void semtech_thread_down(void* pic) {
                 json_value_free(root_val);
                 continue;
             }
+
+
+            LOGGER("=== After data ===\n");
+            print_tx_packet(txpkt);
+
             i = b64_to_bin(str, strlen(str), txpkt.payload, sizeof txpkt.payload);
             if (i != txpkt.size) {
                 LOGGER("WARNING: [down] mismatch between .size and .data size once converter to binary\n");
             }
 
             LOGGER("=== LoRa TX Packet, semtech transport, before jit add ===\n");
-            LOGGER("freq_hz: %u\n", txpkt.freq_hz);
-            LOGGER("tx_mode: %u\n", txpkt.tx_mode);
-            LOGGER("count_us: %u\n", txpkt.count_us);
-            LOGGER("rf_chain: %u\n", txpkt.rf_chain);
-            LOGGER("rf_power: %d\n", txpkt.rf_power);
-            LOGGER("modulation: %u\n", txpkt.modulation);
-            LOGGER("bandwidth: %u\n", txpkt.bandwidth);
-            LOGGER("datarate: %u\n", txpkt.datarate);
-            LOGGER("coderate: %u\n", txpkt.coderate);
-            LOGGER("invert_pol: %d\n", txpkt.invert_pol);
-            LOGGER("f_dev: %u\n", txpkt.f_dev);
-            LOGGER("preamble: %u\n", txpkt.preamble);
-            LOGGER("no_crc: %d\n", txpkt.no_crc);
-            LOGGER("no_header: %d\n", txpkt.no_header);
-            LOGGER("size: %u\n", txpkt.size);
-            // LOGGER("payload: %d\n", pkt.payload);
-            LOGGER("======================\n");
+            print_tx_packet(txpkt);
 
             /* free the JSON parse tree from memory */
             json_value_free(root_val);
@@ -1098,23 +1180,7 @@ void semtech_thread_down(void* pic) {
             }
 
             LOGGER("=== LoRa TX Packet, semtech transport, after jit add ===\n");
-            LOGGER("freq_hz: %u\n", txpkt.freq_hz);
-            LOGGER("tx_mode: %u\n", txpkt.tx_mode);
-            LOGGER("count_us: %u\n", txpkt.count_us);
-            LOGGER("rf_chain: %u\n", txpkt.rf_chain);
-            LOGGER("rf_power: %d\n", txpkt.rf_power);
-            LOGGER("modulation: %u\n", txpkt.modulation);
-            LOGGER("bandwidth: %u\n", txpkt.bandwidth);
-            LOGGER("datarate: %u\n", txpkt.datarate);
-            LOGGER("coderate: %u\n", txpkt.coderate);
-            LOGGER("invert_pol: %d\n", txpkt.invert_pol);
-            LOGGER("f_dev: %u\n", txpkt.f_dev);
-            LOGGER("preamble: %u\n", txpkt.preamble);
-            LOGGER("no_crc: %d\n", txpkt.no_crc);
-            LOGGER("no_header: %d\n", txpkt.no_header);
-            LOGGER("size: %u\n", txpkt.size);
-            // LOGGER("payload: %d\n", pkt.payload);
-            LOGGER("======================\n");
+            print_tx_packet(txpkt);
 
             /* Send acknowledge datagram to server */
             send_tx_ack(ic, buff_down[1], buff_down[2], jit_result);
