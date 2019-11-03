@@ -33,6 +33,8 @@
   * Forward packets with an invalid CRC.
 * GW_FWD_CRC_VAL optional - default true.
   * Forward packets with a valid CRC.
+* GW_AUTOQUIT_THRESHOLD - optional.
+  * When autoquit_treshold is set this parameter add a watch dog to Semtech UDP connections.
 * GW_DOWNSTREAM optional - default true.
   * Globally enable (or disable) transmissions for this gateway.
 * GW_ANTENNA_GAIN optional - default 0.
