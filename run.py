@@ -3,6 +3,11 @@
 Author: JP Meijers
 Date: 2017-02-26
 Based on: https://github.com/rayozzie/ttn-resin-gateway-rpi/blob/master/run.sh
+22-2-2018 Modified by pe1mew to add logger variable GW_LOGGER
+23-2-2018 Modified by pe1mew to add autoquit parameter GW_AUTOQUIT_THRESHOLD
+          \todo add checks on autoquit variable
+23-2-2018 Modified by pe1mew, follow default setting of downlink traffic. when required
+          downlink traffic can be disabled.
 """
 import os
 import os.path
@@ -245,6 +250,19 @@ else:
   gateway_conf['gps'] = False
   gateway_conf['fake_gps'] = False
 
+# Add logging Parse GW_LOGGER env var. It is a string, we need a
+# boolean. Enableing this variable will increase the amount of logging
+# on the resin.io console.
+if(os.getenv('GW_LOGGER', "false")=="true"):
+  gateway_conf['logger'] = True
+  print ("Packet logging enabled")
+
+# Add autoquit_treshold parameter to configuration file when available This parameter add a watch dog for
+# to Semtech UDP connections.
+autoquit_threshold = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 0))
+if(autoquit_threshold > 0):
+  gateway_conf['autoquit_threshold'] = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 5))
+  print ("Autoquit parameter set")
 
 # Add server configuration
 gateway_conf['servers'] = []
@@ -274,10 +292,11 @@ else:
     server['serv_port_up'] = int(os.getenv("SERVER_0_PORTUP", 1700))
     server['serv_port_down'] = int(os.getenv("SERVER_0_PORTDOWN", 1700))
     server['serv_enabled'] = True
+    # Downlink data is by default enabled by packet forwarder. When required override default setting
     if(os.getenv('SERVER_0_DOWNLINK', "false")=="true"):
-      server['serv_down_enabled'] = True
-    else:
       server['serv_down_enabled'] = False
+    else:
+      server['serv_down_enabled'] = True
     gateway_conf['servers'].append(server)
 
 # Add up to 3 additional servers
@@ -291,10 +310,11 @@ if(os.getenv('SERVER_1_ENABLED', "false")=="true"):
   server['serv_port_up'] = int(os.getenv("SERVER_1_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_1_PORTDOWN", 1700))
   server['serv_enabled'] = True
-  if(os.getenv('SERVER_1_DOWNLINK', "false")=="true"):
-    server['serv_down_enabled'] = True
-  else:
+  # Downlink data is by default enabled by packet forwarder. When required override default setting
+    if(os.getenv('SERVER_1_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = False
+  else:
+    server['serv_down_enabled'] = True
   gateway_conf['servers'].append(server)
 
 if(os.getenv('SERVER_2_ENABLED', "false")=="true"):
@@ -307,10 +327,11 @@ if(os.getenv('SERVER_2_ENABLED', "false")=="true"):
   server['serv_port_up'] = int(os.getenv("SERVER_2_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_2_PORTDOWN", 1700))
   server['serv_enabled'] = True
-  if(os.getenv('SERVER_2_DOWNLINK', "false")=="true"):
-    server['serv_down_enabled'] = True
-  else:
+  # Downlink data is by default enabled by packet forwarder. When required override default setting
+    if(os.getenv('SERVER_2_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = False
+  else:
+    server['serv_down_enabled'] = True
   gateway_conf['servers'].append(server)
 
 if(os.getenv('SERVER_3_ENABLED', "false")=="true"):
@@ -323,10 +344,11 @@ if(os.getenv('SERVER_3_ENABLED', "false")=="true"):
   server['serv_port_up'] = int(os.getenv("SERVER_3_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_3_PORTDOWN", 1700))
   server['serv_enabled'] = True
-  if(os.getenv('SERVER_3_DOWNLINK', "false")=="true"):
-    server['serv_down_enabled'] = True
-  else:
+  # Downlink data is by default enabled by packet forwarder. When required override default setting
+    if(os.getenv('SERVER_3_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = False
+  else:
+    server['serv_down_enabled'] = True
   gateway_conf['servers'].append(server)
 
 
