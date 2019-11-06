@@ -6,8 +6,6 @@ Based on: https://github.com/rayozzie/ttn-resin-gateway-rpi/blob/master/run.sh
 22-2-2018 Modified by pe1mew to add logger variable GW_LOGGER
 23-2-2018 Modified by pe1mew to add autoquit parameter GW_AUTOQUIT_THRESHOLD
           \todo add checks on autoquit variable
-23-2-2018 Modified by pe1mew, follow default setting of downlink traffic. when required
-          downlink traffic can be disabled.
 """
 import os
 import os.path
@@ -159,7 +157,6 @@ if(os.getenv('SERVER_TTN', "true")=="true"):
       if "mqtt_address" in fb_router:
         fallback_routers.append(fb_router["mqtt_address"])
 
-
   print ("Gateway ID:\t"+my_gw_id)
   print ("Gateway Key:\t"+os.environ.get("GW_KEY"))
   print ("Frequency plan:\t\t"+frequency_plan)
@@ -181,8 +178,6 @@ print ("Altitude:\t\t"+str(altitude))
 print ("Gateway EUI:\t"+my_eui)
 print ("Has hardware GPS:\t"+str(os.getenv('GW_GPS', False)))
 print ("Hardware GPS port:\t"+os.getenv('GW_GPS_PORT', "/dev/ttyAMA0"))
-
-
 
 # Retrieve global_conf
 sx1301_conf = {}
@@ -253,12 +248,8 @@ else:
   gateway_conf['gps'] = False
   gateway_conf['fake_gps'] = False
 
-
 # Add server configuration
 gateway_conf['servers'] = []
-
-# While the principle of LoRaWAN is that only one server may control the downlink of the gateway
-# in this script downlink is enabled by default and can be overrided manualy.
 
 # Add TTN server
 if(os.getenv('SERVER_TTN', "true")=="true"):
@@ -285,10 +276,10 @@ else:
     server['serv_port_up'] = int(os.getenv("SERVER_0_PORTUP", 1700))
     server['serv_port_down'] = int(os.getenv("SERVER_0_PORTDOWN", 1700))
     server['serv_enabled'] = True
-    if(os.getenv('SERVER_0_DOWNLINK', "true")=="false"):
-      server['serv_down_enabled'] = False
-    else:
+    if(os.getenv('SERVER_0_DOWNLINK', "false")=="true"):
       server['serv_down_enabled'] = True
+    else:
+      server['serv_down_enabled'] = False
     gateway_conf['servers'].append(server)
 
 # Add up to 3 additional servers
@@ -302,10 +293,10 @@ if(os.getenv('SERVER_1_ENABLED', "false")=="true"):
   server['serv_port_up'] = int(os.getenv("SERVER_1_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_1_PORTDOWN", 1700))
   server['serv_enabled'] = True
-  if(os.getenv('SERVER_1_DOWNLINK', "true")=="false"):
-    server['serv_down_enabled'] = False
-  else:
+  if(os.getenv('SERVER_1_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = True
+  else:
+    server['serv_down_enabled'] = False
   gateway_conf['servers'].append(server)
 
 if(os.getenv('SERVER_2_ENABLED', "false")=="true"):
@@ -318,10 +309,10 @@ if(os.getenv('SERVER_2_ENABLED', "false")=="true"):
   server['serv_port_up'] = int(os.getenv("SERVER_2_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_2_PORTDOWN", 1700))
   server['serv_enabled'] = True
-  if(os.getenv('SERVER_2_DOWNLINK', "true")=="false"):
-    server['serv_down_enabled'] = False
-  else:
+  if(os.getenv('SERVER_2_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = True
+  else:
+    server['serv_down_enabled'] = False
   gateway_conf['servers'].append(server)
 
 if(os.getenv('SERVER_3_ENABLED', "false")=="true"):
@@ -334,10 +325,10 @@ if(os.getenv('SERVER_3_ENABLED', "false")=="true"):
   server['serv_port_up'] = int(os.getenv("SERVER_3_PORTUP", 1700))
   server['serv_port_down'] = int(os.getenv("SERVER_3_PORTDOWN", 1700))
   server['serv_enabled'] = True
-  if(os.getenv('SERVER_3_DOWNLINK', "true")=="false"):
-    server['serv_down_enabled'] = False
-  else:
+  if(os.getenv('SERVER_3_DOWNLINK', "false")=="true"):
     server['serv_down_enabled'] = True
+  else:
+    server['serv_down_enabled'] = False
   gateway_conf['servers'].append(server)
 
 
