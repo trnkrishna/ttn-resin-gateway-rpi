@@ -157,6 +157,7 @@ if(os.getenv('SERVER_TTN', "true")=="true"):
       if "mqtt_address" in fb_router:
         fallback_routers.append(fb_router["mqtt_address"])
 
+
   print ("Gateway ID:\t"+my_gw_id)
   print ("Gateway Key:\t"+os.environ.get("GW_KEY"))
   print ("Frequency plan:\t\t"+frequency_plan)
@@ -179,6 +180,8 @@ print ("Gateway EUI:\t"+my_eui)
 print ("Has hardware GPS:\t"+str(os.getenv('GW_GPS', False)))
 print ("Hardware GPS port:\t"+os.getenv('GW_GPS_PORT', "/dev/ttyAMA0"))
 
+
+
 # Retrieve global_conf
 sx1301_conf = {}
 try:
@@ -193,26 +196,23 @@ except urllib2.URLError as err:
 
 sx1301_conf['antenna_gain'] = float(os.getenv('GW_ANTENNA_GAIN', 0))
 
+
 # Build local_conf
 gateway_conf = {}
 gateway_conf['gateway_ID'] = my_eui
 gateway_conf['contact_email'] = os.getenv('GW_CONTACT_EMAIL', "")
 gateway_conf['description'] = description
 gateway_conf['stat_file'] = 'loragwstat.json'
+gateway_conf['push_timeout_ms'] = int(os.getenv("GW_PUSH_TIMEOUT", 100)) # Default in code is 100
 
-# Add logging Parse GW_LOGGER env var. It is a string, we need a
-# boolean. Enableing this variable will increase the amount of logging
-# on the resin.io console.
 if(os.getenv('GW_LOGGER', "false")=="true"):
   gateway_conf['logger'] = True
-  print ("Packet logging enabled")
+else:
+  gateway_conf['logger'] = False
 
-# Add autoquit_treshold parameter to configuration file when available This parameter add a watch 
-# dog for to Semtech UDP connections.
-autoquit_threshold = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 0))
-if(autoquit_threshold > 0):
-  gateway_conf['autoquit_threshold'] = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 5))
-  print ("Autoquit parameter set")
+if(os.getenv('GW_FWD_CRC_ERR', "false")=="true"):
+  #default is False
+  gateway_conf['forward_crc_error'] = True
 
 if(os.getenv('GW_FWD_CRC_VAL', "true")=="false"):
   #default is True
@@ -247,6 +247,20 @@ else:
   print ("Not sending coordinates")
   gateway_conf['gps'] = False
   gateway_conf['fake_gps'] = False
+
+# Add logging Parse GW_LOGGER env var. It is a string, we need a
+# boolean. Enableing this variable will increase the amount of logging
+# on the resin.io console.
+if(os.getenv('GW_LOGGER', "false")=="true"):
+  gateway_conf['logger'] = True
+  print ("Packet logging enabled")
+
+# Add autoquit_treshold parameter to configuration file when available This parameter add a watch 
+# dog for to Semtech UDP connections.
+autoquit_threshold = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 0))
+if(autoquit_threshold > 0):
+  gateway_conf['autoquit_threshold'] = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 5))
+  print ("Autoquit parameter set")
 
 # Add server configuration
 gateway_conf['servers'] = []
