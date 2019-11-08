@@ -3,9 +3,8 @@
 Author: JP Meijers
 Date: 2017-02-26
 Based on: https://github.com/rayozzie/ttn-resin-gateway-rpi/blob/master/run.sh
-22-2-2018 Modified by pe1mew to add logger variable GW_LOGGER
-23-2-2018 Modified by pe1mew to add autoquit parameter GW_AUTOQUIT_THRESHOLD
-          \todo add checks on autoquit variable
+
+2019-11-08: Modified by pe1mew to add GW_LOGGER and GW_AUTOQUIT_THRESHOLD
 """
 import os
 import os.path
@@ -248,19 +247,16 @@ else:
   gateway_conf['gps'] = False
   gateway_conf['fake_gps'] = False
 
-# Add logging Parse GW_LOGGER env var. It is a string, we need a
-# boolean. Enableing this variable will increase the amount of logging
-# on the resin.io console.
+# Log all LoRaWAN packets to console
 if(os.getenv('GW_LOGGER', "false")=="true"):
   gateway_conf['logger'] = True
   print ("Packet logging enabled")
 
-# Add autoquit_treshold parameter to configuration file when available This parameter add a watch 
-# dog for to Semtech UDP connections.
+# Autoquit when a number of PULL_ACKs have been missed
 autoquit_threshold = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 0))
 if(autoquit_threshold > 0):
   gateway_conf['autoquit_threshold'] = int(os.getenv('GW_AUTOQUIT_THRESHOLD', 5))
-  print ("Autoquit parameter set")
+  print ("Autoquit after", gateway_conf['autoquit_threshold'], "missed PULL_ACKs")
 
 # Add server configuration
 gateway_conf['servers'] = []
