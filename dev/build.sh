@@ -2,7 +2,7 @@
 
 INSTALL_DIR="/opt/ttn-gateway"
 
-mkdir -p $INSTALL_DIR/dev
+mkdir -p $INSTALL_DIR/dev -p $INSTALL_DIR/bin
 cd $INSTALL_DIR/dev
 
 if [ ! -d lora_gateway ]; then
@@ -99,6 +99,6 @@ cd $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/
 make -j$(nproc)
 
 # Copy things needed at runtime to where they'll be expected
-cp $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/mp_pkt_fwd $INSTALL_DIR/mp_pkt_fwd
+cp $INSTALL_DIR/dev/packet_forwarder/mp_pkt_fwd/mp_pkt_fwd $INSTALL_DIR/bin/mp_pkt_fwd
 
 echo "Build & Installation Completed."
